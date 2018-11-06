@@ -1,0 +1,1757 @@
+         } else {
+	                if (n < (2 / p)) {
+	                    n -= (1.5 / p);
+	                    l = s * n * n + .75;
+	                } else {
+	                    if (n < (2.5 / p)) {
+	                        n -= (2.25 / p);
+	                        l = s * n * n + .9375;
+	                    } else {
+	                        n -= (2.625 / p);
+	                        l = s * n * n + .984375;
+	                    }
+	                }
+	            }
+	            return l;
+	        }
+	    };
+	    ef.easeIn = ef["ease-in"] = ef["<"];
+	    ef.easeOut = ef["ease-out"] = ef[">"];
+	    ef.easeInOut = ef["ease-in-out"] = ef["<>"];
+	    ef["back-in"] = ef.backIn;
+	    ef["back-out"] = ef.backOut;
+
+	    var animationElements = [],
+	        requestAnimFrame = window.requestAnimationFrame       ||
+	                           window.webkitRequestAnimationFrame ||
+	                           window.mozRequestAnimationFrame    ||
+	                           window.oRequestAnimationFrame      ||
+	                           window.msRequestAnimationFrame     ||
+	                           function (callback) {
+	                               setTimeout(callback, 16);
+	                           },
+	        animation = function () {
+	            var Now = +new Date,
+	                l = 0;
+	            for (; l < animationElements.length; l++) {
+	                var e = animationElements[l];
+	                if (e.el.removed || e.paused) {
+	                    continue;
+	                }
+	                var time = Now - e.start,
+	                    ms = e.ms,
+	                    easing = e.easing,
+	                    from = e.from,
+	                    diff = e.diff,
+	                    to = e.to,
+	                    t = e.t,
+	                    that = e.el,
+	                    set = {},
+	                    now,
+	                    init = {},
+	                    key;
+	                if (e.initstatus) {
+	                    time = (e.initstatus * e.anim.top - e.prev) / (e.percent - e.prev) * ms;
+	                    e.status = e.initstatus;
+	                    delete e.initstatus;
+	                    e.stop && animationElements.splice(l--, 1);
+	                } else {
+	                    e.status = (e.prev + (e.percent - e.prev) * (time / ms)) / e.anim.top;
+	                }
+	                if (time < 0) {
+	                    continue;
+	                }
+	                if (time < ms) {
+	                    var pos = easing(time / ms);
+	                    for (var attr in from) if (from[has](attr)) {
+	                        switch (availableAnimAttrs[attr]) {
+	                            case nu:
+	                                now = +from[attr] + pos * ms * diff[attr];
+	                                break;
+	                            case "colour":
+	                                now = "rgb(" + [
+	                                    upto255(round(from[attr].r + pos * ms * diff[attr].r)),
+	                                    upto255(round(from[attr].g + pos * ms * diff[attr].g)),
+	                                    upto255(round(from[attr].b + pos * ms * diff[attr].b))
+	                                ].join(",") + ")";
+	                                break;
+	                            case "path":
+	                                now = [];
+	                                for (var i = 0, ii = from[attr].length; i < ii; i++) {
+	                                    now[i] = [from[attr][i][0]];
+	                                    for (var j = 1, jj = from[attr][i].length; j < jj; j++) {
+	                                        now[i][j] = +from[attr][i][j] + pos * ms * diff[attr][i][j];
+	                                    }
+	                                    now[i] = now[i].join(S);
+	                                }
+	                                now = now.join(S);
+	                                break;
+	                            case "transform":
+	                                if (diff[attr].real) {
+	                                    now = [];
+	                                    for (i = 0, ii = from[attr].length; i < ii; i++) {
+	                                        now[i] = [from[attr][i][0]];
+	                                        for (j = 1, jj = from[attr][i].length; j < jj; j++) {
+	                                            now[i][j] = from[attr][i][j] + pos * ms * diff[attr][i][j];
+	                                        }
+	                                    }
+	                                } else {
+	                                    var get = function (i) {
+	                                        return +from[attr][i] + pos * ms * diff[attr][i];
+	                                    };
+	                                    // now = [["r", get(2), 0, 0], ["t", get(3), get(4)], ["s", get(0), get(1), 0, 0]];
+	                                    now = [["m", get(0), get(1), get(2), get(3), get(4), get(5)]];
+	                                }
+	                                break;
+	                            case "csv":
+	                                if (attr == "clip-rect") {
+	                                    now = [];
+	                                    i = 4;
+	                                    while (i--) {
+	                                        now[i] = +from[attr][i] + pos * ms * diff[attr][i];
+	                                    }
+	                                }
+	                                break;
+	                            default:
+	                                var from2 = [][concat](from[attr]);
+	                                now = [];
+	                                i = that.paper.customAttributes[attr].length;
+	                                while (i--) {
+	                                    now[i] = +from2[i] + pos * ms * diff[attr][i];
+	                                }
+	                                break;
+	                        }
+	                        set[attr] = now;
+	                    }
+	                    that.attr(set);
+	                    (function (id, that, anim) {
+	                        setTimeout(function () {
+	                            eve("raphael.anim.frame." + id, that, anim);
+	                        });
+	                    })(that.id, that, e.anim);
+	                } else {
+	                    (function(f, el, a) {
+	                        setTimeout(function() {
+	                            eve("raphael.anim.frame." + el.id, el, a);
+	                            eve("raphael.anim.finish." + el.id, el, a);
+	                            R.is(f, "function") && f.call(el);
+	                        });
+	                    })(e.callback, that, e.anim);
+	                    that.attr(to);
+	                    animationElements.splice(l--, 1);
+	                    if (e.repeat > 1 && !e.next) {
+	                        for (key in to) if (to[has](key)) {
+	                            init[key] = e.totalOrigin[key];
+	                        }
+	                        e.el.attr(init);
+	                        runAnimation(e.anim, e.el, e.anim.percents[0], null, e.totalOrigin, e.repeat - 1);
+	                    }
+	                    if (e.next && !e.stop) {
+	                        runAnimation(e.anim, e.el, e.next, null, e.totalOrigin, e.repeat);
+	                    }
+	                }
+	            }
+	            animationElements.length && requestAnimFrame(animation);
+	        },
+	        upto255 = function (color) {
+	            return color > 255 ? 255 : color < 0 ? 0 : color;
+	        };
+	    /*\
+	     * Element.animateWith
+	     [ method ]
+	     **
+	     * Acts similar to @Element.animate, but ensure that given animation runs in sync with another given element.
+	     **
+	     > Parameters
+	     **
+	     - el (object) element to sync with
+	     - anim (object) animation to sync with
+	     - params (object) #optional final attributes for the element, see also @Element.attr
+	     - ms (number) #optional number of milliseconds for animation to run
+	     - easing (string) #optional easing type. Accept on of @Raphael.easing_formulas or CSS format: `cubic&#x2010;bezier(XX,&#160;XX,&#160;XX,&#160;XX)`
+	     - callback (function) #optional callback function. Will be called at the end of animation.
+	     * or
+	     - element (object) element to sync with
+	     - anim (object) animation to sync with
+	     - animation (object) #optional animation object, see @Raphael.animation
+	     **
+	     = (object) original element
+	    \*/
+	    elproto.animateWith = function (el, anim, params, ms, easing, callback) {
+	        var element = this;
+	        if (element.removed) {
+	            callback && callback.call(element);
+	            return element;
+	        }
+	        var a = params instanceof Animation ? params : R.animation(params, ms, easing, callback),
+	            x, y;
+	        runAnimation(a, element, a.percents[0], null, element.attr());
+	        for (var i = 0, ii = animationElements.length; i < ii; i++) {
+	            if (animationElements[i].anim == anim && animationElements[i].el == el) {
+	                animationElements[ii - 1].start = animationElements[i].start;
+	                break;
+	            }
+	        }
+	        return element;
+	        //
+	        //
+	        // var a = params ? R.animation(params, ms, easing, callback) : anim,
+	        //     status = element.status(anim);
+	        // return this.animate(a).status(a, status * anim.ms / a.ms);
+	    };
+	    function CubicBezierAtTime(t, p1x, p1y, p2x, p2y, duration) {
+	        var cx = 3 * p1x,
+	            bx = 3 * (p2x - p1x) - cx,
+	            ax = 1 - cx - bx,
+	            cy = 3 * p1y,
+	            by = 3 * (p2y - p1y) - cy,
+	            ay = 1 - cy - by;
+	        function sampleCurveX(t) {
+	            return ((ax * t + bx) * t + cx) * t;
+	        }
+	        function solve(x, epsilon) {
+	            var t = solveCurveX(x, epsilon);
+	            return ((ay * t + by) * t + cy) * t;
+	        }
+	        function solveCurveX(x, epsilon) {
+	            var t0, t1, t2, x2, d2, i;
+	            for(t2 = x, i = 0; i < 8; i++) {
+	                x2 = sampleCurveX(t2) - x;
+	                if (abs(x2) < epsilon) {
+	                    return t2;
+	                }
+	                d2 = (3 * ax * t2 + 2 * bx) * t2 + cx;
+	                if (abs(d2) < 1e-6) {
+	                    break;
+	                }
+	                t2 = t2 - x2 / d2;
+	            }
+	            t0 = 0;
+	            t1 = 1;
+	            t2 = x;
+	            if (t2 < t0) {
+	                return t0;
+	            }
+	            if (t2 > t1) {
+	                return t1;
+	            }
+	            while (t0 < t1) {
+	                x2 = sampleCurveX(t2);
+	                if (abs(x2 - x) < epsilon) {
+	                    return t2;
+	                }
+	                if (x > x2) {
+	                    t0 = t2;
+	                } else {
+	                    t1 = t2;
+	                }
+	                t2 = (t1 - t0) / 2 + t0;
+	            }
+	            return t2;
+	        }
+	        return solve(t, 1 / (200 * duration));
+	    }
+	    elproto.onAnimation = function (f) {
+	        f ? eve.on("raphael.anim.frame." + this.id, f) : eve.unbind("raphael.anim.frame." + this.id);
+	        return this;
+	    };
+	    function Animation(anim, ms) {
+	        var percents = [],
+	            newAnim = {};
+	        this.ms = ms;
+	        this.times = 1;
+	        if (anim) {
+	            for (var attr in anim) if (anim[has](attr)) {
+	                newAnim[toFloat(attr)] = anim[attr];
+	                percents.push(toFloat(attr));
+	            }
+	            percents.sort(sortByNumber);
+	        }
+	        this.anim = newAnim;
+	        this.top = percents[percents.length - 1];
+	        this.percents = percents;
+	    }
+	    /*\
+	     * Animation.delay
+	     [ method ]
+	     **
+	     * Creates a copy of existing animation object with given delay.
+	     **
+	     > Parameters
+	     **
+	     - delay (number) number of ms to pass between animation start and actual animation
+	     **
+	     = (object) new altered Animation object
+	     | var anim = Raphael.animation({cx: 10, cy: 20}, 2e3);
+	     | circle1.animate(anim); // run the given animation immediately
+	     | circle2.animate(anim.delay(500)); // run the given animation after 500 ms
+	    \*/
+	    Animation.prototype.delay = function (delay) {
+	        var a = new Animation(this.anim, this.ms);
+	        a.times = this.times;
+	        a.del = +delay || 0;
+	        return a;
+	    };
+	    /*\
+	     * Animation.repeat
+	     [ method ]
+	     **
+	     * Creates a copy of existing animation object with given repetition.
+	     **
+	     > Parameters
+	     **
+	     - repeat (number) number iterations of animation. For infinite animation pass `Infinity`
+	     **
+	     = (object) new altered Animation object
+	    \*/
+	    Animation.prototype.repeat = function (times) {
+	        var a = new Animation(this.anim, this.ms);
+	        a.del = this.del;
+	        a.times = math.floor(mmax(times, 0)) || 1;
+	        return a;
+	    };
+	    function runAnimation(anim, element, percent, status, totalOrigin, times) {
+	        percent = toFloat(percent);
+	        var params,
+	            isInAnim,
+	            isInAnimSet,
+	            percents = [],
+	            next,
+	            prev,
+	            timestamp,
+	            ms = anim.ms,
+	            from = {},
+	            to = {},
+	            diff = {};
+	        if (status) {
+	            for (i = 0, ii = animationElements.length; i < ii; i++) {
+	                var e = animationElements[i];
+	                if (e.el.id == element.id && e.anim == anim) {
+	                    if (e.percent != percent) {
+	                        animationElements.splice(i, 1);
+	                        isInAnimSet = 1;
+	                    } else {
+	                        isInAnim = e;
+	                    }
+	                    element.attr(e.totalOrigin);
+	                    break;
+	                }
+	            }
+	        } else {
+	            status = +to; // NaN
+	        }
+	        for (var i = 0, ii = anim.percents.length; i < ii; i++) {
+	            if (anim.percents[i] == percent || anim.percents[i] > status * anim.top) {
+	                percent = anim.percents[i];
+	                prev = anim.percents[i - 1] || 0;
+	                ms = ms / anim.top * (percent - prev);
+	                next = anim.percents[i + 1];
+	                params = anim.anim[percent];
+	                break;
+	            } else if (status) {
+	                element.attr(anim.anim[anim.percents[i]]);
+	            }
+	        }
+	        if (!params) {
+	            return;
+	        }
+	        if (!isInAnim) {
+	            for (var attr in params) if (params[has](attr)) {
+	                if (availableAnimAttrs[has](attr) || element.paper.customAttributes[has](attr)) {
+	                    from[attr] = element.attr(attr);
+	                    (from[attr] == null) && (from[attr] = availableAttrs[attr]);
+	                    to[attr] = params[attr];
+	                    switch (availableAnimAttrs[attr]) {
+	                        case nu:
+	                            diff[attr] = (to[attr] - from[attr]) / ms;
+	                            break;
+	                        case "colour":
+	                            from[attr] = R.getRGB(from[attr]);
+	                            var toColour = R.getRGB(to[attr]);
+	                            diff[attr] = {
+	                                r: (toColour.r - from[attr].r) / ms,
+	                                g: (toColour.g - from[attr].g) / ms,
+	                                b: (toColour.b - from[attr].b) / ms
+	                            };
+	                            break;
+	                        case "path":
+	                            var pathes = path2curve(from[attr], to[attr]),
+	                                toPath = pathes[1];
+	                            from[attr] = pathes[0];
+	                            diff[attr] = [];
+	                            for (i = 0, ii = from[attr].length; i < ii; i++) {
+	                                diff[attr][i] = [0];
+	                                for (var j = 1, jj = from[attr][i].length; j < jj; j++) {
+	                                    diff[attr][i][j] = (toPath[i][j] - from[attr][i][j]) / ms;
+	                                }
+	                            }
+	                            break;
+	                        case "transform":
+	                            var _ = element._,
+	                                eq = equaliseTransform(_[attr], to[attr]);
+	                            if (eq) {
+	                                from[attr] = eq.from;
+	                                to[attr] = eq.to;
+	                                diff[attr] = [];
+	                                diff[attr].real = true;
+	                                for (i = 0, ii = from[attr].length; i < ii; i++) {
+	                                    diff[attr][i] = [from[attr][i][0]];
+	                                    for (j = 1, jj = from[attr][i].length; j < jj; j++) {
+	                                        diff[attr][i][j] = (to[attr][i][j] - from[attr][i][j]) / ms;
+	                                    }
+	                                }
+	                            } else {
+	                                var m = (element.matrix || new Matrix),
+	                                    to2 = {
+	                                        _: {transform: _.transform},
+	                                        getBBox: function () {
+	                                            return element.getBBox(1);
+	                                        }
+	                                    };
+	                                from[attr] = [
+	                                    m.a,
+	                                    m.b,
+	                                    m.c,
+	                                    m.d,
+	                                    m.e,
+	                                    m.f
+	                                ];
+	                                extractTransform(to2, to[attr]);
+	                                to[attr] = to2._.transform;
+	                                diff[attr] = [
+	                                    (to2.matrix.a - m.a) / ms,
+	                                    (to2.matrix.b - m.b) / ms,
+	                                    (to2.matrix.c - m.c) / ms,
+	                                    (to2.matrix.d - m.d) / ms,
+	                                    (to2.matrix.e - m.e) / ms,
+	                                    (to2.matrix.f - m.f) / ms
+	                                ];
+	                                // from[attr] = [_.sx, _.sy, _.deg, _.dx, _.dy];
+	                                // var to2 = {_:{}, getBBox: function () { return element.getBBox(); }};
+	                                // extractTransform(to2, to[attr]);
+	                                // diff[attr] = [
+	                                //     (to2._.sx - _.sx) / ms,
+	                                //     (to2._.sy - _.sy) / ms,
+	                                //     (to2._.deg - _.deg) / ms,
+	                                //     (to2._.dx - _.dx) / ms,
+	                                //     (to2._.dy - _.dy) / ms
+	                                // ];
+	                            }
+	                            break;
+	                        case "csv":
+	                            var values = Str(params[attr])[split](separator),
+	                                from2 = Str(from[attr])[split](separator);
+	                            if (attr == "clip-rect") {
+	                                from[attr] = from2;
+	                                diff[attr] = [];
+	                                i = from2.length;
+	                                while (i--) {
+	                                    diff[attr][i] = (values[i] - from[attr][i]) / ms;
+	                                }
+	                            }
+	                            to[attr] = values;
+	                            break;
+	                        default:
+	                            values = [][concat](params[attr]);
+	                            from2 = [][concat](from[attr]);
+	                            diff[attr] = [];
+	                            i = element.paper.customAttributes[attr].length;
+	                            while (i--) {
+	                                diff[attr][i] = ((values[i] || 0) - (from2[i] || 0)) / ms;
+	                            }
+	                            break;
+	                    }
+	                }
+	            }
+	            var easing = params.easing,
+	                easyeasy = R.easing_formulas[easing];
+	            if (!easyeasy) {
+	                easyeasy = Str(easing).match(bezierrg);
+	                if (easyeasy && easyeasy.length == 5) {
+	                    var curve = easyeasy;
+	                    easyeasy = function (t) {
+	                        return CubicBezierAtTime(t, +curve[1], +curve[2], +curve[3], +curve[4], ms);
+	                    };
+	                } else {
+	                    easyeasy = pipe;
+	                }
+	            }
+	            timestamp = params.start || anim.start || +new Date;
+	            e = {
+	                anim: anim,
+	                percent: percent,
+	                timestamp: timestamp,
+	                start: timestamp + (anim.del || 0),
+	                status: 0,
+	                initstatus: status || 0,
+	                stop: false,
+	                ms: ms,
+	                easing: easyeasy,
+	                from: from,
+	                diff: diff,
+	                to: to,
+	                el: element,
+	                callback: params.callback,
+	                prev: prev,
+	                next: next,
+	                repeat: times || anim.times,
+	                origin: element.attr(),
+	                totalOrigin: totalOrigin
+	            };
+	            animationElements.push(e);
+	            if (status && !isInAnim && !isInAnimSet) {
+	                e.stop = true;
+	                e.start = new Date - ms * status;
+	                if (animationElements.length == 1) {
+	                    return animation();
+	                }
+	            }
+	            if (isInAnimSet) {
+	                e.start = new Date - e.ms * status;
+	            }
+	            animationElements.length == 1 && requestAnimFrame(animation);
+	        } else {
+	            isInAnim.initstatus = status;
+	            isInAnim.start = new Date - isInAnim.ms * status;
+	        }
+	        eve("raphael.anim.start." + element.id, element, anim);
+	    }
+	    /*\
+	     * Raphael.animation
+	     [ method ]
+	     **
+	     * Creates an animation object that can be passed to the @Element.animate or @Element.animateWith methods.
+	     * See also @Animation.delay and @Animation.repeat methods.
+	     **
+	     > Parameters
+	     **
+	     - params (object) final attributes for the element, see also @Element.attr
+	     - ms (number) number of milliseconds for animation to run
+	     - easing (string) #optional easing type. Accept one of @Raphael.easing_formulas or CSS format: `cubic&#x2010;bezier(XX,&#160;XX,&#160;XX,&#160;XX)`
+	     - callback (function) #optional callback function. Will be called at the end of animation.
+	     **
+	     = (object) @Animation
+	    \*/
+	    R.animation = function (params, ms, easing, callback) {
+	        if (params instanceof Animation) {
+	            return params;
+	        }
+	        if (R.is(easing, "function") || !easing) {
+	            callback = callback || easing || null;
+	            easing = null;
+	        }
+	        params = Object(params);
+	        ms = +ms || 0;
+	        var p = {},
+	            json,
+	            attr;
+	        for (attr in params) if (params[has](attr) && toFloat(attr) != attr && toFloat(attr) + "%" != attr) {
+	            json = true;
+	            p[attr] = params[attr];
+	        }
+	        if (!json) {
+	            // if percent-like syntax is used and end-of-all animation callback used
+	            if(callback){
+	                // find the last one
+	                var lastKey = 0;
+	                for(var i in params){
+	                    var percent = toInt(i);
+	                    if(params[has](i) && percent > lastKey){
+	                        lastKey = percent;
+	                    }
+	                }
+	                lastKey += '%';
+	                // if already defined callback in the last keyframe, skip
+	                !params[lastKey].callback && (params[lastKey].callback = callback);
+	            }
+	          return new Animation(params, ms);
+	        } else {
+	            easing && (p.easing = easing);
+	            callback && (p.callback = callback);
+	            return new Animation({100: p}, ms);
+	        }
+	    };
+	    /*\
+	     * Element.animate
+	     [ method ]
+	     **
+	     * Creates and starts animation for given element.
+	     **
+	     > Parameters
+	     **
+	     - params (object) final attributes for the element, see also @Element.attr
+	     - ms (number) number of milliseconds for animation to run
+	     - easing (string) #optional easing type. Accept one of @Raphael.easing_formulas or CSS format: `cubic&#x2010;bezier(XX,&#160;XX,&#160;XX,&#160;XX)`
+	     - callback (function) #optional callback function. Will be called at the end of animation.
+	     * or
+	     - animation (object) animation object, see @Raphael.animation
+	     **
+	     = (object) original element
+	    \*/
+	    elproto.animate = function (params, ms, easing, callback) {
+	        var element = this;
+	        if (element.removed) {
+	            callback && callback.call(element);
+	            return element;
+	        }
+	        var anim = params instanceof Animation ? params : R.animation(params, ms, easing, callback);
+	        runAnimation(anim, element, anim.percents[0], null, element.attr());
+	        return element;
+	    };
+	    /*\
+	     * Element.setTime
+	     [ method ]
+	     **
+	     * Sets the status of animation of the element in milliseconds. Similar to @Element.status method.
+	     **
+	     > Parameters
+	     **
+	     - anim (object) animation object
+	     - value (number) number of milliseconds from the beginning of the animation
+	     **
+	     = (object) original element if `value` is specified
+	     * Note, that during animation following events are triggered:
+	     *
+	     * On each animation frame event `anim.frame.<id>`, on start `anim.start.<id>` and on end `anim.finish.<id>`.
+	    \*/
+	    elproto.setTime = function (anim, value) {
+	        if (anim && value != null) {
+	            this.status(anim, mmin(value, anim.ms) / anim.ms);
+	        }
+	        return this;
+	    };
+	    /*\
+	     * Element.status
+	     [ method ]
+	     **
+	     * Gets or sets the status of animation of the element.
+	     **
+	     > Parameters
+	     **
+	     - anim (object) #optional animation object
+	     - value (number) #optional 0 – 1. If specified, method works like a setter and sets the status of a given animation to the value. This will cause animation to jump to the given position.
+	     **
+	     = (number) status
+	     * or
+	     = (array) status if `anim` is not specified. Array of objects in format:
+	     o {
+	     o     anim: (object) animation object
+	     o     status: (number) status
+	     o }
+	     * or
+	     = (object) original element if `value` is specified
+	    \*/
+	    elproto.status = function (anim, value) {
+	        var out = [],
+	            i = 0,
+	            len,
+	            e;
+	        if (value != null) {
+	            runAnimation(anim, this, -1, mmin(value, 1));
+	            return this;
+	        } else {
+	            len = animationElements.length;
+	            for (; i < len; i++) {
+	                e = animationElements[i];
+	                if (e.el.id == this.id && (!anim || e.anim == anim)) {
+	                    if (anim) {
+	                        return e.status;
+	                    }
+	                    out.push({
+	                        anim: e.anim,
+	                        status: e.status
+	                    });
+	                }
+	            }
+	            if (anim) {
+	                return 0;
+	            }
+	            return out;
+	        }
+	    };
+	    /*\
+	     * Element.pause
+	     [ method ]
+	     **
+	     * Stops animation of the element with ability to resume it later on.
+	     **
+	     > Parameters
+	     **
+	     - anim (object) #optional animation object
+	     **
+	     = (object) original element
+	    \*/
+	    elproto.pause = function (anim) {
+	        for (var i = 0; i < animationElements.length; i++) if (animationElements[i].el.id == this.id && (!anim || animationElements[i].anim == anim)) {
+	            if (eve("raphael.anim.pause." + this.id, this, animationElements[i].anim) !== false) {
+	                animationElements[i].paused = true;
+	            }
+	        }
+	        return this;
+	    };
+	    /*\
+	     * Element.resume
+	     [ method ]
+	     **
+	     * Resumes animation if it was paused with @Element.pause method.
+	     **
+	     > Parameters
+	     **
+	     - anim (object) #optional animation object
+	     **
+	     = (object) original element
+	    \*/
+	    elproto.resume = function (anim) {
+	        for (var i = 0; i < animationElements.length; i++) if (animationElements[i].el.id == this.id && (!anim || animationElements[i].anim == anim)) {
+	            var e = animationElements[i];
+	            if (eve("raphael.anim.resume." + this.id, this, e.anim) !== false) {
+	                delete e.paused;
+	                this.status(e.anim, e.status);
+	            }
+	        }
+	        return this;
+	    };
+	    /*\
+	     * Element.stop
+	     [ method ]
+	     **
+	     * Stops animation of the element.
+	     **
+	     > Parameters
+	     **
+	     - anim (object) #optional animation object
+	     **
+	     = (object) original element
+	    \*/
+	    elproto.stop = function (anim) {
+	        for (var i = 0; i < animationElements.length; i++) if (animationElements[i].el.id == this.id && (!anim || animationElements[i].anim == anim)) {
+	            if (eve("raphael.anim.stop." + this.id, this, animationElements[i].anim) !== false) {
+	                animationElements.splice(i--, 1);
+	            }
+	        }
+	        return this;
+	    };
+	    function stopAnimation(paper) {
+	        for (var i = 0; i < animationElements.length; i++) if (animationElements[i].el.paper == paper) {
+	            animationElements.splice(i--, 1);
+	        }
+	    }
+	    eve.on("raphael.remove", stopAnimation);
+	    eve.on("raphael.clear", stopAnimation);
+	    elproto.toString = function () {
+	        return "Rapha\xebl\u2019s object";
+	    };
+
+	    // Set
+	    var Set = function (items) {
+	        this.items = [];
+	        this.length = 0;
+	        this.type = "set";
+	        if (items) {
+	            for (var i = 0, ii = items.length; i < ii; i++) {
+	                if (items[i] && (items[i].constructor == elproto.constructor || items[i].constructor == Set)) {
+	                    this[this.items.length] = this.items[this.items.length] = items[i];
+	                    this.length++;
+	                }
+	            }
+	        }
+	    },
+	    setproto = Set.prototype;
+	    /*\
+	     * Set.push
+	     [ method ]
+	     **
+	     * Adds each argument to the current set.
+	     = (object) original element
+	    \*/
+	    setproto.push = function () {
+	        var item,
+	            len;
+	        for (var i = 0, ii = arguments.length; i < ii; i++) {
+	            item = arguments[i];
+	            if (item && (item.constructor == elproto.constructor || item.constructor == Set)) {
+	                len = this.items.length;
+	                this[len] = this.items[len] = item;
+	                this.length++;
+	            }
+	        }
+	        return this;
+	    };
+	    /*\
+	     * Set.pop
+	     [ method ]
+	     **
+	     * Removes last element and returns it.
+	     = (object) element
+	    \*/
+	    setproto.pop = function () {
+	        this.length && delete this[this.length--];
+	        return this.items.pop();
+	    };
+	    /*\
+	     * Set.forEach
+	     [ method ]
+	     **
+	     * Executes given function for each element in the set.
+	     *
+	     * If function returns `false` it will stop loop running.
+	     **
+	     > Parameters
+	     **
+	     - callback (function) function to run
+	     - thisArg (object) context object for the callback
+	     = (object) Set object
+	    \*/
+	    setproto.forEach = function (callback, thisArg) {
+	        for (var i = 0, ii = this.items.length; i < ii; i++) {
+	            if (callback.call(thisArg, this.items[i], i) === false) {
+	                return this;
+	            }
+	        }
+	        return this;
+	    };
+	    for (var method in elproto) if (elproto[has](method)) {
+	        setproto[method] = (function (methodname) {
+	            return function () {
+	                var arg = arguments;
+	                return this.forEach(function (el) {
+	                    el[methodname][apply](el, arg);
+	                });
+	            };
+	        })(method);
+	    }
+	    setproto.attr = function (name, value) {
+	        if (name && R.is(name, array) && R.is(name[0], "object")) {
+	            for (var j = 0, jj = name.length; j < jj; j++) {
+	                this.items[j].attr(name[j]);
+	            }
+	        } else {
+	            for (var i = 0, ii = this.items.length; i < ii; i++) {
+	                this.items[i].attr(name, value);
+	            }
+	        }
+	        return this;
+	    };
+	    /*\
+	     * Set.clear
+	     [ method ]
+	     **
+	     * Removes all elements from the set
+	    \*/
+	    setproto.clear = function () {
+	        while (this.length) {
+	            this.pop();
+	        }
+	    };
+	    /*\
+	     * Set.splice
+	     [ method ]
+	     **
+	     * Removes given element from the set
+	     **
+	     > Parameters
+	     **
+	     - index (number) position of the deletion
+	     - count (number) number of element to remove
+	     - insertion… (object) #optional elements to insert
+	     = (object) set elements that were deleted
+	    \*/
+	    setproto.splice = function (index, count, insertion) {
+	        index = index < 0 ? mmax(this.length + index, 0) : index;
+	        count = mmax(0, mmin(this.length - index, count));
+	        var tail = [],
+	            todel = [],
+	            args = [],
+	            i;
+	        for (i = 2; i < arguments.length; i++) {
+	            args.push(arguments[i]);
+	        }
+	        for (i = 0; i < count; i++) {
+	            todel.push(this[index + i]);
+	        }
+	        for (; i < this.length - index; i++) {
+	            tail.push(this[index + i]);
+	        }
+	        var arglen = args.length;
+	        for (i = 0; i < arglen + tail.length; i++) {
+	            this.items[index + i] = this[index + i] = i < arglen ? args[i] : tail[i - arglen];
+	        }
+	        i = this.items.length = this.length -= count - arglen;
+	        while (this[i]) {
+	            delete this[i++];
+	        }
+	        return new Set(todel);
+	    };
+	    /*\
+	     * Set.exclude
+	     [ method ]
+	     **
+	     * Removes given element from the set
+	     **
+	     > Parameters
+	     **
+	     - element (object) element to remove
+	     = (boolean) `true` if object was found & removed from the set
+	    \*/
+	    setproto.exclude = function (el) {
+	        for (var i = 0, ii = this.length; i < ii; i++) if (this[i] == el) {
+	            this.splice(i, 1);
+	            return true;
+	        }
+	    };
+	    setproto.animate = function (params, ms, easing, callback) {
+	        (R.is(easing, "function") || !easing) && (callback = easing || null);
+	        var len = this.items.length,
+	            i = len,
+	            item,
+	            set = this,
+	            collector;
+	        if (!len) {
+	            return this;
+	        }
+	        callback && (collector = function () {
+	            !--len && callback.call(set);
+	        });
+	        easing = R.is(easing, string) ? easing : collector;
+	        var anim = R.animation(params, ms, easing, collector);
+	        item = this.items[--i].animate(anim);
+	        while (i--) {
+	            this.items[i] && !this.items[i].removed && this.items[i].animateWith(item, anim, anim);
+	            (this.items[i] && !this.items[i].removed) || len--;
+	        }
+	        return this;
+	    };
+	    setproto.insertAfter = function (el) {
+	        var i = this.items.length;
+	        while (i--) {
+	            this.items[i].insertAfter(el);
+	        }
+	        return this;
+	    };
+	    setproto.getBBox = function () {
+	        var x = [],
+	            y = [],
+	            x2 = [],
+	            y2 = [];
+	        for (var i = this.items.length; i--;) if (!this.items[i].removed) {
+	            var box = this.items[i].getBBox();
+	            x.push(box.x);
+	            y.push(box.y);
+	            x2.push(box.x + box.width);
+	            y2.push(box.y + box.height);
+	        }
+	        x = mmin[apply](0, x);
+	        y = mmin[apply](0, y);
+	        x2 = mmax[apply](0, x2);
+	        y2 = mmax[apply](0, y2);
+	        return {
+	            x: x,
+	            y: y,
+	            x2: x2,
+	            y2: y2,
+	            width: x2 - x,
+	            height: y2 - y
+	        };
+	    };
+	    setproto.clone = function (s) {
+	        s = this.paper.set();
+	        for (var i = 0, ii = this.items.length; i < ii; i++) {
+	            s.push(this.items[i].clone());
+	        }
+	        return s;
+	    };
+	    setproto.toString = function () {
+	        return "Rapha\xebl\u2018s set";
+	    };
+
+	    setproto.glow = function(glowConfig) {
+	        var ret = this.paper.set();
+	        this.forEach(function(shape, index){
+	            var g = shape.glow(glowConfig);
+	            if(g != null){
+	                g.forEach(function(shape2, index2){
+	                    ret.push(shape2);
+	                });
+	            }
+	        });
+	        return ret;
+	    };
+
+
+	    /*\
+	     * Set.isPointInside
+	     [ method ]
+	     **
+	     * Determine if given point is inside this set’s elements
+	     **
+	     > Parameters
+	     **
+	     - x (number) x coordinate of the point
+	     - y (number) y coordinate of the point
+	     = (boolean) `true` if point is inside any of the set's elements
+	     \*/
+	    setproto.isPointInside = function (x, y) {
+	        var isPointInside = false;
+	        this.forEach(function (el) {
+	            if (el.isPointInside(x, y)) {
+	                isPointInside = true;
+	                return false; // stop loop
+	            }
+	        });
+	        return isPointInside;
+	    };
+
+	    /*\
+	     * Raphael.registerFont
+	     [ method ]
+	     **
+	     * Adds given font to the registered set of fonts for Raphaël. Should be used as an internal call from within Cufón’s font file.
+	     * Returns original parameter, so it could be used with chaining.
+	     # <a href="http://wiki.github.com/sorccu/cufon/about">More about Cufón and how to convert your font form TTF, OTF, etc to JavaScript file.</a>
+	     **
+	     > Parameters
+	     **
+	     - font (object) the font to register
+	     = (object) the font you passed in
+	     > Usage
+	     | Cufon.registerFont(Raphael.registerFont({…}));
+	    \*/
+	    R.registerFont = function (font) {
+	        if (!font.face) {
+	            return font;
+	        }
+	        this.fonts = this.fonts || {};
+	        var fontcopy = {
+	                w: font.w,
+	                face: {},
+	                glyphs: {}
+	            },
+	            family = font.face["font-family"];
+	        for (var prop in font.face) if (font.face[has](prop)) {
+	            fontcopy.face[prop] = font.face[prop];
+	        }
+	        if (this.fonts[family]) {
+	            this.fonts[family].push(fontcopy);
+	        } else {
+	            this.fonts[family] = [fontcopy];
+	        }
+	        if (!font.svg) {
+	            fontcopy.face["units-per-em"] = toInt(font.face["units-per-em"], 10);
+	            for (var glyph in font.glyphs) if (font.glyphs[has](glyph)) {
+	                var path = font.glyphs[glyph];
+	                fontcopy.glyphs[glyph] = {
+	                    w: path.w,
+	                    k: {},
+	                    d: path.d && "M" + path.d.replace(/[mlcxtrv]/g, function (command) {
+	                            return {l: "L", c: "C", x: "z", t: "m", r: "l", v: "c"}[command] || "M";
+	                        }) + "z"
+	                };
+	                if (path.k) {
+	                    for (var k in path.k) if (path[has](k)) {
+	                        fontcopy.glyphs[glyph].k[k] = path.k[k];
+	                    }
+	                }
+	            }
+	        }
+	        return font;
+	    };
+	    /*\
+	     * Paper.getFont
+	     [ method ]
+	     **
+	     * Finds font object in the registered fonts by given parameters. You could specify only one word from the font name, like “Myriad” for “Myriad Pro”.
+	     **
+	     > Parameters
+	     **
+	     - family (string) font family name or any word from it
+	     - weight (string) #optional font weight
+	     - style (string) #optional font style
+	     - stretch (string) #optional font stretch
+	     = (object) the font object
+	     > Usage
+	     | paper.print(100, 100, "Test string", paper.getFont("Times", 800), 30);
+	    \*/
+	    paperproto.getFont = function (family, weight, style, stretch) {
+	        stretch = stretch || "normal";
+	        style = style || "normal";
+	        weight = +weight || {normal: 400, bold: 700, lighter: 300, bolder: 800}[weight] || 400;
+	        if (!R.fonts) {
+	            return;
+	        }
+	        var font = R.fonts[family];
+	        if (!font) {
+	            var name = new RegExp("(^|\\s)" + family.replace(/[^\w\d\s+!~.:_-]/g, E) + "(\\s|$)", "i");
+	            for (var fontName in R.fonts) if (R.fonts[has](fontName)) {
+	                if (name.test(fontName)) {
+	                    font = R.fonts[fontName];
+	                    break;
+	                }
+	            }
+	        }
+	        var thefont;
+	        if (font) {
+	            for (var i = 0, ii = font.length; i < ii; i++) {
+	                thefont = font[i];
+	                if (thefont.face["font-weight"] == weight && (thefont.face["font-style"] == style || !thefont.face["font-style"]) && thefont.face["font-stretch"] == stretch) {
+	                    break;
+	                }
+	            }
+	        }
+	        return thefont;
+	    };
+	    /*\
+	     * Paper.print
+	     [ method ]
+	     **
+	     * Creates path that represent given text written using given font at given position with given size.
+	     * Result of the method is path element that contains whole text as a separate path.
+	     **
+	     > Parameters
+	     **
+	     - x (number) x position of the text
+	     - y (number) y position of the text
+	     - string (string) text to print
+	     - font (object) font object, see @Paper.getFont
+	     - size (number) #optional size of the font, default is `16`
+	     - origin (string) #optional could be `"baseline"` or `"middle"`, default is `"middle"`
+	     - letter_spacing (number) #optional number in range `-1..1`, default is `0`
+	     - line_spacing (number) #optional number in range `1..3`, default is `1`
+	     = (object) resulting path element, which consist of all letters
+	     > Usage
+	     | var txt = r.print(10, 50, "print", r.getFont("Museo"), 30).attr({fill: "#fff"});
+	    \*/
+	    paperproto.print = function (x, y, string, font, size, origin, letter_spacing, line_spacing) {
+	        origin = origin || "middle"; // baseline|middle
+	        letter_spacing = mmax(mmin(letter_spacing || 0, 1), -1);
+	        line_spacing = mmax(mmin(line_spacing || 1, 3), 1);
+	        var letters = Str(string)[split](E),
+	            shift = 0,
+	            notfirst = 0,
+	            path = E,
+	            scale;
+	        R.is(font, "string") && (font = this.getFont(font));
+	        if (font) {
+	            scale = (size || 16) / font.face["units-per-em"];
+	            var bb = font.face.bbox[split](separator),
+	                top = +bb[0],
+	                lineHeight = bb[3] - bb[1],
+	                shifty = 0,
+	                height = +bb[1] + (origin == "baseline" ? lineHeight + (+font.face.descent) : lineHeight / 2);
+	            for (var i = 0, ii = letters.length; i < ii; i++) {
+	                if (letters[i] == "\n") {
+	                    shift = 0;
+	                    curr = 0;
+	                    notfirst = 0;
+	                    shifty += lineHeight * line_spacing;
+	                } else {
+	                    var prev = notfirst && font.glyphs[letters[i - 1]] || {},
+	                        curr = font.glyphs[letters[i]];
+	                    shift += notfirst ? (prev.w || font.w) + (prev.k && prev.k[letters[i]] || 0) + (font.w * letter_spacing) : 0;
+	                    notfirst = 1;
+	                }
+	                if (curr && curr.d) {
+	                    path += R.transformPath(curr.d, ["t", shift * scale, shifty * scale, "s", scale, scale, top, height, "t", (x - top) / scale, (y - height) / scale]);
+	                }
+	            }
+	        }
+	        return this.path(path).attr({
+	            fill: "#000",
+	            stroke: "none"
+	        });
+	    };
+
+	    /*\
+	     * Paper.add
+	     [ method ]
+	     **
+	     * Imports elements in JSON array in format `{type: type, <attributes>}`
+	     **
+	     > Parameters
+	     **
+	     - json (array)
+	     = (object) resulting set of imported elements
+	     > Usage
+	     | paper.add([
+	     |     {
+	     |         type: "circle",
+	     |         cx: 10,
+	     |         cy: 10,
+	     |         r: 5
+	     |     },
+	     |     {
+	     |         type: "rect",
+	     |         x: 10,
+	     |         y: 10,
+	     |         width: 10,
+	     |         height: 10,
+	     |         fill: "#fc0"
+	     |     }
+	     | ]);
+	    \*/
+	    paperproto.add = function (json) {
+	        if (R.is(json, "array")) {
+	            var res = this.set(),
+	                i = 0,
+	                ii = json.length,
+	                j;
+	            for (; i < ii; i++) {
+	                j = json[i] || {};
+	                elements[has](j.type) && res.push(this[j.type]().attr(j));
+	            }
+	        }
+	        return res;
+	    };
+
+	    /*\
+	     * Raphael.format
+	     [ method ]
+	     **
+	     * Simple format function. Replaces construction of type “`{<number>}`” to the corresponding argument.
+	     **
+	     > Parameters
+	     **
+	     - token (string) string to format
+	     - … (string) rest of arguments will be treated as parameters for replacement
+	     = (string) formated string
+	     > Usage
+	     | var x = 10,
+	     |     y = 20,
+	     |     width = 40,
+	     |     height = 50;
+	     | // this will draw a rectangular shape equivalent to "M10,20h40v50h-40z"
+	     | paper.path(Raphael.format("M{0},{1}h{2}v{3}h{4}z", x, y, width, height, -width));
+	    \*/
+	    R.format = function (token, params) {
+	        var args = R.is(params, array) ? [0][concat](params) : arguments;
+	        token && R.is(token, string) && args.length - 1 && (token = token.replace(formatrg, function (str, i) {
+	            return args[++i] == null ? E : args[i];
+	        }));
+	        return token || E;
+	    };
+	    /*\
+	     * Raphael.fullfill
+	     [ method ]
+	     **
+	     * A little bit more advanced format function than @Raphael.format. Replaces construction of type “`{<name>}`” to the corresponding argument.
+	     **
+	     > Parameters
+	     **
+	     - token (string) string to format
+	     - json (object) object which properties will be used as a replacement
+	     = (string) formated string
+	     > Usage
+	     | // this will draw a rectangular shape equivalent to "M10,20h40v50h-40z"
+	     | paper.path(Raphael.fullfill("M{x},{y}h{dim.width}v{dim.height}h{dim['negative width']}z", {
+	     |     x: 10,
+	     |     y: 20,
+	     |     dim: {
+	     |         width: 40,
+	     |         height: 50,
+	     |         "negative width": -40
+	     |     }
+	     | }));
+	    \*/
+	    R.fullfill = (function () {
+	        var tokenRegex = /\{([^\}]+)\}/g,
+	            objNotationRegex = /(?:(?:^|\.)(.+?)(?=\[|\.|$|\()|\[('|")(.+?)\2\])(\(\))?/g, // matches .xxxxx or ["xxxxx"] to run over object properties
+	            replacer = function (all, key, obj) {
+	                var res = obj;
+	                key.replace(objNotationRegex, function (all, name, quote, quotedName, isFunc) {
+	                    name = name || quotedName;
+	                    if (res) {
+	                        if (name in res) {
+	                            res = res[name];
+	                        }
+	                        typeof res == "function" && isFunc && (res = res());
+	                    }
+	                });
+	                res = (res == null || res == obj ? all : res) + "";
+	                return res;
+	            };
+	        return function (str, obj) {
+	            return String(str).replace(tokenRegex, function (all, key) {
+	                return replacer(all, key, obj);
+	            });
+	        };
+	    })();
+	    /*\
+	     * Raphael.ninja
+	     [ method ]
+	     **
+	     * If you want to leave no trace of Raphaël (Well, Raphaël creates only one global variable `Raphael`, but anyway.) You can use `ninja` method.
+	     * Beware, that in this case plugins could stop working, because they are depending on global variable existence.
+	     **
+	     = (object) Raphael object
+	     > Usage
+	     | (function (local_raphael) {
+	     |     var paper = local_raphael(10, 10, 320, 200);
+	     |     …
+	     | })(Raphael.ninja());
+	    \*/
+	    R.ninja = function () {
+	        if (oldRaphael.was) {
+	            g.win.Raphael = oldRaphael.is;
+	        } else {
+	            // IE8 raises an error when deleting window property
+	            window.Raphael = undefined;
+	            try {
+	                delete window.Raphael;
+	            } catch(e) {}
+	        }
+	        return R;
+	    };
+	    /*\
+	     * Raphael.st
+	     [ property (object) ]
+	     **
+	     * You can add your own method to elements and sets. It is wise to add a set method for each element method
+	     * you added, so you will be able to call the same method on sets too.
+	     **
+	     * See also @Raphael.el.
+	     > Usage
+	     | Raphael.el.red = function () {
+	     |     this.attr({fill: "#f00"});
+	     | };
+	     | Raphael.st.red = function () {
+	     |     this.forEach(function (el) {
+	     |         el.red();
+	     |     });
+	     | };
+	     | // then use it
+	     | paper.set(paper.circle(100, 100, 20), paper.circle(110, 100, 20)).red();
+	    \*/
+	    R.st = setproto;
+
+	    eve.on("raphael.DOMload", function () {
+	        loaded = true;
+	    });
+
+	    // Firefox <3.6 fix: http://webreflection.blogspot.com/2009/11/195-chars-to-help-lazy-loading.html
+	    (function (doc, loaded, f) {
+	        if (doc.readyState == null && doc.addEventListener){
+	            doc.addEventListener(loaded, f = function () {
+	                doc.removeEventListener(loaded, f, false);
+	                doc.readyState = "complete";
+	            }, false);
+	            doc.readyState = "loading";
+	        }
+	        function isLoaded() {
+	            (/in/).test(doc.readyState) ? setTimeout(isLoaded, 9) : R.eve("raphael.DOMload");
+	        }
+	        isLoaded();
+	    })(document, "DOMContentLoaded");
+
+	    return R;
+	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = function(R) {
+	    if (R && !R.svg) {
+	        return;
+	    }
+
+	    var has = "hasOwnProperty",
+	        Str = String,
+	        toFloat = parseFloat,
+	        toInt = parseInt,
+	        math = Math,
+	        mmax = math.max,
+	        abs = math.abs,
+	        pow = math.pow,
+	        separator = /[, ]+/,
+	        eve = R.eve,
+	        E = "",
+	        S = " ";
+	    var xlink = "http://www.w3.org/1999/xlink",
+	        markers = {
+	            block: "M5,0 0,2.5 5,5z",
+	            classic: "M5,0 0,2.5 5,5 3.5,3 3.5,2z",
+	            diamond: "M2.5,0 5,2.5 2.5,5 0,2.5z",
+	            open: "M6,1 1,3.5 6,6",
+	            oval: "M2.5,0A2.5,2.5,0,0,1,2.5,5 2.5,2.5,0,0,1,2.5,0z"
+	        },
+	        markerCounter = {};
+	    R.toString = function () {
+	        return  "Your browser supports SVG.\nYou are running Rapha\xebl " + this.version;
+	    };
+	    var $ = function (el, attr) {
+	        if (attr) {
+	            if (typeof el == "string") {
+	                el = $(el);
+	            }
+	            for (var key in attr) if (attr[has](key)) {
+	                if (key.substring(0, 6) == "xlink:") {
+	                    el.setAttributeNS(xlink, key.substring(6), Str(attr[key]));
+	                } else {
+	                    el.setAttribute(key, Str(attr[key]));
+	                }
+	            }
+	        } else {
+	            el = R._g.doc.createElementNS("http://www.w3.org/2000/svg", el);
+	            el.style && (el.style.webkitTapHighlightColor = "rgba(0,0,0,0)");
+	        }
+	        return el;
+	    },
+	    addGradientFill = function (element, gradient) {
+	        var type = "linear",
+	            id = element.id + gradient,
+	            fx = .5, fy = .5,
+	            o = element.node,
+	            SVG = element.paper,
+	            s = o.style,
+	            el = R._g.doc.getElementById(id);
+	        if (!el) {
+	            gradient = Str(gradient).replace(R._radial_gradient, function (all, _fx, _fy) {
+	                type = "radial";
+	                if (_fx && _fy) {
+	                    fx = toFloat(_fx);
+	                    fy = toFloat(_fy);
+	                    var dir = ((fy > .5) * 2 - 1);
+	                    pow(fx - .5, 2) + pow(fy - .5, 2) > .25 &&
+	                        (fy = math.sqrt(.25 - pow(fx - .5, 2)) * dir + .5) &&
+	                        fy != .5 &&
+	                        (fy = fy.toFixed(5) - 1e-5 * dir);
+	                }
+	                return E;
+	            });
+	            gradient = gradient.split(/\s*\-\s*/);
+	            if (type == "linear") {
+	                var angle = gradient.shift();
+	                angle = -toFloat(angle);
+	                if (isNaN(angle)) {
+	                    return null;
+	                }
+	                var vector = [0, 0, math.cos(R.rad(angle)), math.sin(R.rad(angle))],
+	                    max = 1 / (mmax(abs(vector[2]), abs(vector[3])) || 1);
+	                vector[2] *= max;
+	                vector[3] *= max;
+	                if (vector[2] < 0) {
+	                    vector[0] = -vector[2];
+	                    vector[2] = 0;
+	                }
+	                if (vector[3] < 0) {
+	                    vector[1] = -vector[3];
+	                    vector[3] = 0;
+	                }
+	            }
+	            var dots = R._parseDots(gradient);
+	            if (!dots) {
+	                return null;
+	            }
+	            id = id.replace(/[\(\)\s,\xb0#]/g, "_");
+
+	            if (element.gradient && id != element.gradient.id) {
+	                SVG.defs.removeChild(element.gradient);
+	                delete element.gradient;
+	            }
+
+	            if (!element.gradient) {
+	                el = $(type + "Gradient", {id: id});
+	                element.gradient = el;
+	                $(el, type == "radial" ? {
+	                    fx: fx,
+	                    fy: fy
+	                } : {
+	                    x1: vector[0],
+	                    y1: vector[1],
+	                    x2: vector[2],
+	                    y2: vector[3],
+	                    gradientTransform: element.matrix.invert()
+	                });
+	                SVG.defs.appendChild(el);
+	                for (var i = 0, ii = dots.length; i < ii; i++) {
+	                    el.appendChild($("stop", {
+	                        offset: dots[i].offset ? dots[i].offset : i ? "100%" : "0%",
+	                        "stop-color": dots[i].color || "#fff",
+	                        "stop-opacity": isFinite(dots[i].opacity) ? dots[i].opacity : 1
+	                    }));
+	                }
+	            }
+	        }
+	        $(o, {
+	            fill: fillurl(id),
+	            opacity: 1,
+	            "fill-opacity": 1
+	        });
+	        s.fill = E;
+	        s.opacity = 1;
+	        s.fillOpacity = 1;
+	        return 1;
+	    },
+	    isIE9or10 = function () {
+	      var mode = document.documentMode;
+	      return mode && (mode === 9 || mode === 10);
+	    },
+	    fillurl = function (id) {
+	      if (isIE9or10()) {
+	          return "url('#" + id + "')";
+	      }
+	      var location = document.location;
+	      var locationString = (
+	          location.protocol + '//' +
+	          location.host +
+	          location.pathname +
+	          location.search
+	      );
+	      return "url('" + locationString + "#" + id + "')";
+	    },
+	    updatePosition = function (o) {
+	        var bbox = o.getBBox(1);
+	        $(o.pattern, {patternTransform: o.matrix.invert() + " translate(" + bbox.x + "," + bbox.y + ")"});
+	    },
+	    addArrow = function (o, value, isEnd) {
+	        if (o.type == "path") {
+	            var values = Str(value).toLowerCase().split("-"),
+	                p = o.paper,
+	                se = isEnd ? "end" : "start",
+	                node = o.node,
+	                attrs = o.attrs,
+	                stroke = attrs["stroke-width"],
+	                i = values.length,
+	                type = "classic",
+	                from,
+	                to,
+	                dx,
+	                refX,
+	                attr,
+	                w = 3,
+	                h = 3,
+	                t = 5;
+	            while (i--) {
+	                switch (values[i]) {
+	                    case "block":
+	                    case "classic":
+	                    case "oval":
+	                    case "diamond":
+	                    case "open":
+	                    case "none":
+	                        type = values[i];
+	                        break;
+	                    case "wide": h = 5; break;
+	                    case "narrow": h = 2; break;
+	                    case "long": w = 5; break;
+	                    case "short": w = 2; break;
+	                }
+	            }
+	            if (type == "open") {
+	                w += 2;
+	                h += 2;
+	                t += 2;
+	                dx = 1;
+	                refX = isEnd ? 4 : 1;
+	                attr = {
+	                    fill: "none",
+	                    stroke: attrs.stroke
+	                };
+	            } else {
+	                refX = dx = w / 2;
+	                attr = {
+	                    fill: attrs.stroke,
+	                    stroke: "none"
+	                };
+	            }
+	            if (o._.arrows) {
+	                if (isEnd) {
+	                    o._.arrows.endPath && markerCounter[o._.arrows.endPath]--;
+	                    o._.arrows.endMarker && markerCounter[o._.arrows.endMarker]--;
+	                } else {
+	                    o._.arrows.startPath && markerCounter[o._.arrows.startPath]--;
+	                    o._.arrows.startMarker && markerCounter[o._.arrows.startMarker]--;
+	                }
+	            } else {
+	                o._.arrows = {};
+	            }
+	            if (type != "none") {
+	                var pathId = "raphael-marker-" + type,
+	                    markerId = "raphael-marker-" + se + type + w + h + "-obj" + o.id;
+	                if (!R._g.doc.getElementById(pathId)) {
+	                    p.defs.appendChild($($("path"), {
+	                        "stroke-linecap": "round",
+	                        d: markers[type],
+	                        id: pathId
+	                    }));
+	                    markerCounter[pathId] = 1;
+	                } else {
+	                    markerCounter[pathId]++;
+	                }
+	                var marker = R._g.doc.getElementById(markerId),
+	                    use;
+	                if (!marker) {
+	                    marker = $($("marker"), {
+	                        id: markerId,
+	                        markerHeight: h,
+	                        markerWidth: w,
+	                        orient: "auto",
+	                        refX: refX,
+	                        refY: h / 2
+	                    });
+	                    use = $($("use"), {
+	                        "xlink:href": "#" + pathId,
+	                        transform: (isEnd ? "rotate(180 " + w / 2 + " " + h / 2 + ") " : E) + "scale(" + w / t + "," + h / t + ")",
+	                        "stroke-width": (1 / ((w / t + h / t) / 2)).toFixed(4)
+	                    });
+	                    marker.appendChild(use);
+	                    p.defs.appendChild(marker);
+	                    markerCounter[markerId] = 1;
+	                } else {
+	                    markerCounter[markerId]++;
+	                    use = marker.getElementsByTagName("use")[0];
+	                }
+	                $(use, attr);
+	                var delta = dx * (type != "diamond" && type != "oval");
+	                if (isEnd) {
+	                    from = o._.arrows.startdx * stroke || 0;
+	                    to = R.getTotalLength(attrs.path) - delta * stroke;
+	                } else {
+	                    from = delta * stroke;
+	                    to = R.getTotalLength(attrs.path) - (o._.arrows.enddx * stroke || 0);
+	                }
+	                attr = {};
+	                attr["marker-" + se] = "url(#" + markerId + ")";
+	                if (to || from) {
+	                    attr.d = R.getSubpath(attrs.path, from, to);
+	                }
+	                $(node, attr);
+	                o._.arrows[se + "Path"] = pathId;
+	                o._.arrows[se + "Marker"] = markerId;
+	                o._.arrows[se + "dx"] = delta;
+	                o._.arrows[se + "Type"] = type;
+	                o._.arrows[se + "String"] = value;
+	            } else {
+	                if (isEnd) {
+	                    from = o._.arrows.startdx * stroke || 0;
+	                    to = R.getTotalLength(attrs.path) - from;
+	                } else {
+	                    from = 0;
+	                    to = R.getTotalLength(attrs.path) - (o._.arrows.enddx * stroke || 0);
+	                }
+	                o._.arrows[se + "Path"] && $(node, {d: R.getSubpath(attrs.path, from, to)});
+	                delete o._.arrows[se + "Path"];
+	                delete o._.arrows[se + "Marker"];
+	                delete o._.arrows[se + "dx"];
+	                delete o._.arrows[se + "Type"];
+	                delete o._.arrows[se + "String"];
+	            }
+	            for (attr in markerCounter) if (markerCounter[has](attr) && !markerCounter[attr]) {
+	                var item = R._g.doc.getElementById(attr);
+	                item && item.parentNode.removeChild(item);
+	            }
+	        }
+	    },
+	    dasharray = {
+	        "-": [3, 1],
+	        ".": [1, 1],
+	        "-.": [3, 1, 1, 1],
+	        "-..": [3, 1, 1, 1, 1, 1],
+	        ". ": [1, 3],
+	        "- ": [4, 3],
+	        "--": [8, 3],
+	        "- .": [4, 3, 1, 3],
+	        "--.": [8, 3, 1, 3],
+	        "--..": [8, 3, 1, 3, 1, 3]
+	    },
+	    addDashes = function (o, value, params) {
+	        value = dasharray[Str(value).toLowerCase()];
+	        if (value) {
+	            var width = o.attrs["stroke-width"] || "1",
+	                butt = {round: width, square: width, butt: 0}[o.attrs["stroke-linecap"] || params["stroke-linecap"]] || 0,
+	                dashes = [],
+	                i = value.length;
+	            while (i--) {
+	                dashes[i] = value[i] * width + ((i % 2) ? 1 : -1) * butt;
+	            }
+	            $(o.node, {"stroke-dasharray": dashes.join(",")});
+	        }
+	        else {
+	          $(o.node, {"stroke-dasharray": "none"});
+	        }
+	    },
+	    setFillAndStroke = function (o, params) {
+	        var node = o.node,
+	            attrs = o.attrs,
+	            vis = node.style.visibility;
+	        node.style.visibility = "hidden";
+	        for (var att in params) {
+	            if (params[has](att)) {
+	                if (!R._availableAttrs[has](att)) {
+	                    continue;
+	                }
+	                var value = params[att];
+	                attrs[att] = value;
+	                switch (att) {
+	                    case "blur":
+	                        o.blur(value);
+	                        break;
+	                    case "title":
+	                        var title = node.getElementsByTagName("title");
+
+	                        // Use the existing <title>.
+	                        if (title.length && (title = title[0])) {
+	                          title.firstChild.nodeValue = value;
+	                        } else {
+	                          title = $("title");
+	                          var val = R._g.doc.createTextNode(value);
+	                          title.appendChild(val);
+	                          node.appendChild(title);
+	                        }
+	                        break;
+	                    case "href":
+	                    case "target":
+	                        var pn = node.parentNode;
+	                        if (pn.tagName.toLowerCase() != "a") {
+	                            var hl = $("a");
+	                            pn.insertBefore(hl, node);
+	                            hl.appendChild(node);
+	                            pn = hl;
+	                        }
+	                        if (att == "target") {
+	                            pn.setAttributeNS(xlink, "show", value == "blank" ? "new" : value);
+	                        } else {
+	                            pn.setAttributeNS(xlink, att, value);
+	                        }
+	                        break;
+	                    case "cursor":
+	                        node.style.cursor = value;
+	                        break;
+	                    case "transform":
+	                        o.transform(value);
+	                        break;
+	                    case "arrow-start":
+	                        addArrow(o, value);
+	                        break;
+	                    case "arrow-end":
+	                        addArrow(o, value, 1);
+	                        break;
+	                    case "clip-rect":
+	                        var rect = Str(value).split(separator);
+	                        if (rect.length == 4) {
+	                            o.clip && o.clip.parentNode.parentNode.removeChild(o.clip.parentNode);
+	                            var el = $("clipPath"),
+	                                rc = $("rect");
+	                            el.id = R.createUUID();
+	                            $(rc, {
+	                                x: rect[0],
+	                                y: rect[1],
+	                                width: rect[2],
+	                                height: rect[3]
+	                            });
+	                            el.appendChild(rc);
+	                            o.paper.defs.appendChild(el);
+	                            $(node, {"clip-path": "url(#" + el.id + ")"});
+	                            o.clip = rc;
+	                        }
+	                        if (!value) {
+	                            var path = node.getAttribute("clip-path");
+	                            if (path) {
+	                                var clip = R._g.doc.getElementById(path.replace(/(^url\(#|\)$)/g, E));
+	                                clip && clip.parentNode.removeChi

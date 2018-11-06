@@ -1,0 +1,51 @@
+<?php
+/*
+ * This file is part of the php-code-coverage package.
+ *
+ * (c) Sebastian Bergmann <sebastian@phpunit.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace SebastianBergmann\CodeCoverage\Node;
+
+use SebastianBergmann\CodeCoverage\Util;
+
+/**
+ * Base class for nodes in the code coverage information tree.
+ */
+abstract class AbstractNode implements \Countable
+{
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var string
+     */
+    private $path;
+
+    /**
+     * @var array
+     */
+    private $pathArray;
+
+    /**
+     * @var AbstractNode
+     */
+    private $parent;
+
+    /**
+     * @var string
+     */
+    private $id;
+
+    /**
+     * Constructor.
+     *
+     * @param string       $name
+     * @param AbstractNode $parent
+     */
+    public function __const

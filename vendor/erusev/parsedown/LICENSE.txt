@@ -1,0 +1,35 @@
+<?php
+
+use Egulias\EmailValidator\EmailValidator;
+
+class Swift_Mime_Headers_IdentificationHeaderTest extends \PHPUnit\Framework\TestCase
+{
+    public function testTypeIsIdHeader()
+    {
+        $header = $this->getHeader('Message-ID');
+        $this->assertEquals(Swift_Mime_Header::TYPE_ID, $header->getFieldType());
+    }
+
+    public function testValueMatchesMsgIdSpec()
+    {
+        /* -- RFC 2822, 3.6.4.
+     message-id      =       "Message-ID:" msg-id CRLF
+
+     in-reply-to     =       "In-Reply-To:" 1*msg-id CRLF
+
+     references      =       "References:" 1*msg-id CRLF
+
+     msg-id          =       [CFWS] "<" id-left "@" id-right ">" [CFWS]
+
+     id-left         =       dot-atom-text / no-fold-quote / obs-id-left
+
+     id-right        =       dot-atom-text / no-fold-literal / obs-id-right
+
+     no-fold-quote   =       DQUOTE *(qtext / quoted-pair) DQUOTE
+
+     no-fold-literal =       "[" *(dtext / quoted-pair) "]"
+     */
+
+        $header = $this->getHeader('Message-ID');
+        $header->setId('id-left@id-right');
+        $this->assertEquals('<id-left@id-right>', $hea

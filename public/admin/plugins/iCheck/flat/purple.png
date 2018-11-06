@@ -1,0 +1,49 @@
+<?php
+
+/*
+ * This file is part of the Symfony package.
+ *
+ * (c) Fabien Potencier <fabien@symfony.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Symfony\Component\HttpKernel\Tests\EventListener;
+
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpKernel\EventListener\ResponseListener;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+
+class ResponseListenerTest extends TestCase
+{
+    private $dispatcher;
+
+    private $kernel;
+
+    protected function setUp()
+    {
+        $this->dispatcher = new EventDispatcher();
+        $listener = new ResponseListener('UTF-8');
+        $this->dispatcher->addListener(KernelEvents::RESPONSE, array($listener, 'onKernelResponse'));
+
+        $this->kernel = $this->getMockBuilder('Symfony\Component\HttpKernel\HttpKernelInterface')->getMock();
+    }
+
+    protected function tearDown()
+    {
+        $this->dispatcher = null;
+        $this->kernel = null;
+    }
+
+    public function testFilterDoesNothingForSubRequests()
+    {
+        $response = new Response('foo');
+
+        $event = new FilterResponseEvent($this->kernel, new Request(), HttpKernelInterface::SUB_REQUEST, $response);
+        $this->dispatcher-

@@ -1,0 +1,181 @@
+ *  array('chris@swiftmailer.org' => 'Chris Corbyn',
+     *  'mark@swiftmailer.org' => 'Mark Corbyn')
+     *  );
+     * print_r($header->getNameAddresses());
+     * // array (
+     * // chris@swiftmailer.org => Chris Corbyn,
+     * // mark@swiftmailer.org => Mark Corbyn
+     * // )
+     * ?>
+     * </code>
+     *
+     * @see getAddresses()
+     * @see getNameAddressStrings()
+     *
+     * @return string[]
+     */
+    public function getNameAddresses()
+    {
+        return $this->mailboxes;
+    }
+
+    /**
+     * Makes this Header represent a list of plain email addresses with no names.
+     *
+     * Example:
+     * <code>
+     * <?php
+     * //Sets three email addresses as the Header data
+     * $header->setAddresses(
+     *  array('one@domain.tld', 'two@domain.tld', 'three@domain.tld')
+     *  );
+     * ?>
+     * </code>
+     *
+     * @see setNameAddresses()
+     * @see setValue()
+     *
+     * @param string[] $addresses
+     *
+     * @throws Swift_RfcComplianceException
+     */
+    public function setAddresses($addresses)
+    {
+        $this->setNameAddresses(array_values((array) $addresses));
+    }
+
+    /**
+     * Get all email addresses in this Header.
+     *
+     * @see getNameAddresses()
+     *
+     * @return string[]
+     */
+    public function getAddresses()
+    {
+        return array_keys($this->mailboxes);
+    }
+
+    /**
+     * Remove one or more addresses from this Header.
+     *
+     * @param string|string[] $addresses
+     */
+    public function removeAddresses($addresses)
+    {
+        $this->setCachedValue(null);
+        foreach ((array) $addresses as $address) {
+            unset($this->mailboxes[$address]);
+        }
+    }
+
+    /**
+     * Get the string value of the body in this Header.
+     *
+     * This is not necessarily RFC 2822 compliant since folding white space will
+     * not be added at this stage (see {@link toString()} for that).
+     *
+     * @see toString()
+     *
+     * @throws Swift_RfcComplianceException
+     *
+     * @return string
+     */
+    public function getFieldBody()
+    {
+        // Compute the string value of the header only if needed
+        if (null === $this->getCachedValue()) {
+            $this->setCachedValue($this->createMailboxListString($this->mailboxes));
+        }
+
+        return $this->getCachedValue();
+    }
+
+    /**
+     * Normalizes a user-input list of mailboxes into consistent key=>value pairs.
+     *
+     * @param string[] $mailboxes
+     *
+     * @return string[]
+     */
+    protected function normalizeMailboxes(array $mailboxes)
+    {
+        $actualMailboxes = array();
+
+        foreach ($mailboxes as $key => $value) {
+            if (is_string($key)) {
+                //key is email addr
+                $address = $key;
+                $name = $value;
+            } else {
+                $address = $value;
+                $name = null;
+            }
+            $this->assertValidAddress($address);
+            $actualMailboxes[$address] = $name;
+        }
+
+        return $actualMailboxes;
+    }
+
+    /**
+     * Produces a compliant, formatted display-name based on the string given.
+     *
+     * @param string $displayName as displayed
+     * @param bool   $shorten     the first line to make remove for header name
+     *
+     * @return string
+     */
+    protected function createDisplayNameString($displayName, $shorten = false)
+    {
+        return $this->createPhrase($this, $displayName, $this->getCharset(), $this->getEncoder(), $shorten);
+    }
+
+    /**
+     * Creates a string form of all the mailboxes in the passed array.
+     *
+     * @param string[] $mailboxes
+     *
+     * @throws Swift_RfcComplianceException
+     *
+     * @return string
+     */
+    protected function createMailboxListString(array $mailboxes)
+    {
+        return implode(', ', $this->createNameAddressStrings($mailboxes));
+    }
+
+    /**
+     * Redefine the encoding requirements for mailboxes.
+     *
+     * All "specials" must be encoded as the full header value will not be quoted
+     *
+     * @see RFC 2822 3.2.1
+     *
+     * @param string $token
+     *
+     * @return bool
+     */
+    protected function tokenNeedsEncoding($token)
+    {
+        return preg_match('/[()<>\[\]:;@\,."]/', $token) || parent::tokenNeedsEncoding($token);
+    }
+
+    /**
+     * Return an array of strings conforming the the name-addr spec of RFC 2822.
+     *
+     * @param string[] $mailboxes
+     *
+     * @return string[]
+     */
+    private function createNameAddressStrings(array $mailboxes)
+    {
+        $strings = array();
+
+        foreach ($mailboxes as $email => $name) {
+            $mailboxStr = $email;
+            if (null !== $name) {
+                $nameStr = $this->createDisplayNameString($name, empty($strings));
+                $mailboxStr = $nameStr.' <'.$mailboxStr.'>';
+            }
+            $str

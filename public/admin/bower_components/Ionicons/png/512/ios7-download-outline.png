@@ -1,0 +1,44 @@
+s.prop ] = jQuery._data( this.elem, "fxshow" + this.prop ) || jQuery.style( this.elem, this.prop );
+		this.options.hide = true;
+
+		// Begin the animation
+		this.custom( this.cur(), 0 );
+	},
+
+	// Each step of an animation
+	step: function( gotoEnd ) {
+		var p, n, complete,
+			t = fxNow || createFxNow(),
+			done = true,
+			elem = this.elem,
+			options = this.options;
+
+		if ( gotoEnd || t >= options.duration + this.startTime ) {
+			this.now = this.end;
+			this.pos = this.state = 1;
+			this.update();
+
+			options.animatedProperties[ this.prop ] = true;
+
+			for ( p in options.animatedProperties ) {
+				if ( options.animatedProperties[ p ] !== true ) {
+					done = false;
+				}
+			}
+
+			if ( done ) {
+				// Reset the overflow
+				if ( options.overflow != null && !jQuery.support.shrinkWrapBlocks ) {
+
+					jQuery.each( [ "", "X", "Y" ], function( index, value ) {
+						elem.style[ "overflow" + value ] = options.overflow[ index ];
+					});
+				}
+
+				// Hide the element if the "hide" operation was done
+				if ( options.hide ) {
+					jQuery( elem ).hide();
+				}
+
+				// Reset the properties, if the item has been hidden or shown
+				if ( options.hide || optio

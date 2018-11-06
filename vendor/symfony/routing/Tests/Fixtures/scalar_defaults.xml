@@ -1,0 +1,39 @@
+etime' => $ts,
+            'extra' => array(),
+        );
+
+        foreach ($this->processors as $processor) {
+            $record = call_user_func($processor, $record);
+        }
+
+        while ($handler = current($this->handlers)) {
+            if (true === $handler->handle($record)) {
+                break;
+            }
+
+            next($this->handlers);
+        }
+
+        return true;
+    }
+
+    /**
+     * Adds a log record at the DEBUG level.
+     *
+     * @param  string  $message The log message
+     * @param  array   $context The log context
+     * @return Boolean Whether the record has been processed
+     */
+    public function addDebug($message, array $context = array())
+    {
+        return $this->addRecord(static::DEBUG, $message, $context);
+    }
+
+    /**
+     * Adds a log record at the INFO level.
+     *
+     * @param  string  $message The log message
+     * @param  array   $context The log context
+     * @return Boolean Whether the record has been processed
+     */
+    public function addInfo($message, array

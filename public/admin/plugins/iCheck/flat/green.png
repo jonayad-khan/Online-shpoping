@@ -1,0 +1,34 @@
+foo', 'foo');
+        $controller = new self();
+
+        $this->assertEquals(array('foo', null), self::$resolver->getArguments($request, $controller));
+
+        // Test default bar overridden by request attribute
+        $request->attributes->set('bar', 'bar');
+
+        $this->assertEquals(array('foo', 'bar'), self::$resolver->getArguments($request, $controller));
+    }
+
+    public function testGetArgumentsFromFunctionName()
+    {
+        $request = Request::create('/');
+        $request->attributes->set('foo', 'foo');
+        $request->attributes->set('foobar', 'foobar');
+        $controller = __NAMESPACE__.'\controller_function';
+
+        $this->assertEquals(array('foo', 'foobar'), self::$resolver->getArguments($request, $controller));
+    }
+
+    public function testGetArgumentsFailsOnUnresolvedValue()
+    {
+        $request = Request::create('/');
+        $request->attributes->set('foo', 'foo');
+        $request->attributes->set('foobar', 'foobar');
+        $controller = array(new self(), 'controllerWithFooBarFoobar');
+
+        try {
+            self::$resolver->getArguments($request, $controller);
+            $this->fail('->getArguments() throws a \RuntimeException exception if it cannot determine the argument value');
+        } catch (\Exception $e) {
+            $this->assertInstanceOf('\RuntimeException', $e, '->getArguments() throws a \RuntimeException exception if it cannot determine the argument value');
+      

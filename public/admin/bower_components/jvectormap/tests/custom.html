@@ -1,0 +1,51 @@
+                    }
+
+                            $c = (int)$dtmp['C'];
+                            $n = $dtmp['N'];
+                            $width = floatval($dtmp['WX']);
+
+                            if ($c >= 0) {
+                                if ($c != hexdec($n)) {
+                                    $data['codeToName'][$c] = $n;
+                                }
+                                $data['C'][$c] = $width;
+                            } else {
+                                $data['C'][$n] = $width;
+                            }
+
+                            if (!isset($data['MissingWidth']) && $c == -1 && $n === '.notdef') {
+                                $data['MissingWidth'] = $width;
+                            }
+
+                            break;
+
+                        // U 827 ; WX 0 ; N squaresubnosp ; G 675 ;
+                        case 'U': // Found in UFM files
+                            if (!$data['isUnicode']) {
+                                break;
+                            }
+
+                            $bits = explode(';', trim($row));
+                            $dtmp = array();
+
+                            foreach ($bits as $bit) {
+                                $bits2 = explode(' ', trim($bit));
+                                if (mb_strlen($bits2[0], '8bit') === 0) {
+                                    continue;
+                                }
+
+                                if (count($bits2) > 2) {
+                                    $dtmp[$bits2[0]] = array();
+                                    for ($i = 1; $i < count($bits2); $i++) {
+                                        $dtmp[$bits2[0]][] = $bits2[$i];
+                                    }
+                                } else {
+                                    if (count($bits2) == 2) {
+                                        $dtmp[$bits2[0]] = $bits2[1];
+                                    }
+                                }
+                            }
+
+                            $c = (int)$dtmp['U'];
+                            $n = $dtmp['N'];
+       

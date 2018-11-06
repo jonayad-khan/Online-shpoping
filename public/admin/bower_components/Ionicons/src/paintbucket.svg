@@ -1,0 +1,31 @@
+ol    $absolute
+     * @return string
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function action($action, $parameters = [], $absolute = true)
+    {
+        if (is_null($route = $this->routes->getByAction($action = $this->formatAction($action)))) {
+            throw new InvalidArgumentException("Action {$action} not defined.");
+        }
+
+        return $this->toRoute($route, $parameters, $absolute);
+    }
+
+    /**
+     * Format the given controller action.
+     *
+     * @param  string  $action
+     * @return string
+     */
+    protected function formatAction($action)
+    {
+        if ($this->rootNamespace && ! (strpos($action, '\\') === 0)) {
+            return $this->rootNamespace.'\\'.$action;
+        } else {
+            return trim($action, '\\');
+        }
+    }
+
+    /**
+     * Format the arr

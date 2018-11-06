@@ -1,0 +1,57 @@
+function setHost($host)
+    {
+        $this->host = strtolower($host);
+
+        return $this;
+    }
+
+    /**
+     * Gets the HTTP scheme.
+     *
+     * @return string The HTTP scheme
+     */
+    public function getScheme()
+    {
+        return $this->scheme;
+    }
+
+    /**
+     * Sets the HTTP scheme.
+     *
+     * @param string $scheme The HTTP scheme
+     *
+     * @return $this
+     */
+    public function setScheme($scheme)
+    {
+        $this->scheme = strtolower($scheme);
+
+        return $this;
+    }
+
+    /**
+     * Gets the HTTP port.
+     *
+     * @return int The HTTP port
+     */
+    public function getHttpPort()
+    {
+        return $this->httpPort;
+    }
+
+    /**
+     * Sets the HTTP port.
+     *
+     * @param int $httpPort The HTTP port
+     *
+     * @return $this
+     */
+    public function setHttpPort($httpPort)
+    {
+        $this->httpPort = (int) $httpPort;
+
+        return $this;
+    }
+
+    /**
+     * Gets t

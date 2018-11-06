@@ -1,0 +1,68 @@
+<?php
+
+/*
+ * This file is part of the Monolog package.
+ *
+ * (c) Jordi Boggiano <j.boggiano@seld.be>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Monolog\Handler\Slack;
+
+use Monolog\Logger;
+use Monolog\Formatter\NormalizerFormatter;
+use Monolog\Formatter\FormatterInterface;
+
+/**
+ * Slack record utility helping to log to Slack webhooks or API.
+ *
+ * @author Greg Kedzierski <greg@gregkedzierski.com>
+ * @author Haralan Dobrev <hkdobrev@gmail.com>
+ * @see    https://api.slack.com/incoming-webhooks
+ * @see    https://api.slack.com/docs/message-attachments
+ */
+class SlackRecord
+{
+    const COLOR_DANGER = 'danger';
+
+    const COLOR_WARNING = 'warning';
+
+    const COLOR_GOOD = 'good';
+
+    const COLOR_DEFAULT = '#e3e4e6';
+
+    /**
+     * Slack channel (encoded ID or name)
+     * @var string|null
+     */
+    private $channel;
+
+    /**
+     * Name of a bot
+     * @var string|null
+     */
+    private $username;
+
+    /**
+     * User icon e.g. 'ghost', 'http://example.com/user.png'
+     * @var string
+     */
+    private $userIcon;
+
+    /**
+     * Whether the message should be added to Slack as attachment (plain text otherwise)
+     * @var bool
+     */
+    private $useAttachment;
+
+    /**
+     * Whether the the context/extra messages added to Slack as attachments are in a short style
+     * @var bool
+     */
+    private $useShortAttachment;
+
+    /**
+     * Whether the attachment should include context and extra data
+     * @var 

@@ -1,0 +1,17 @@
+  </xsd:element>
+  <xsd:element name="bin-target">
+    <xsd:complexType>
+      <xsd:choice>
+        <xsd:element ref="xlf:internal-file"/>
+        <xsd:element ref="xlf:external-file"/>
+      </xsd:choice>
+      <xsd:attribute name="mime-type" type="xlf:mime-typeValueList" use="optional"/>
+      <xsd:attribute name="state" type="xlf:AttrType_state" use="optional"/>
+      <xsd:attribute name="state-qualifier" type="xlf:AttrType_state-qualifier" use="optional"/>
+      <xsd:attribute name="phase-name" type="xsd:NMTOKEN" use="optional"/>
+      <xsd:attribute name="restype" type="xlf:AttrType_restype" use="optional"/>
+      <xsd:attribute name="resname" type="xsd:string" use="optional"/>
+      <xsd:anyAttribute namespace="##other" processContents="strict"/>
+    </xsd:complexType>
+  </xsd:element>
+  <!-- Elemen

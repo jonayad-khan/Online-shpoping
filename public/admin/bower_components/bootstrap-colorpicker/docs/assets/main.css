@@ -1,0 +1,41 @@
+<?php
+
+namespace Psr\Log;
+
+/**
+ * This is a simple Logger trait that classes unable to extend AbstractLogger
+ * (because they extend another class, etc) can include.
+ *
+ * It simply delegates all log-level-specific methods to the `log` method to
+ * reduce boilerplate code that a simple Logger that does the same thing with
+ * messages regardless of the error level has to implement.
+ */
+trait LoggerTrait
+{
+    /**
+     * System is unusable.
+     *
+     * @param string $message
+     * @param array  $context
+     *
+     * @return void
+     */
+    public function emergency($message, array $context = array())
+    {
+        $this->log(LogLevel::EMERGENCY, $message, $context);
+    }
+
+    /**
+     * Action must be taken immediately.
+     *
+     * Example: Entire website down, database unavailable, etc. This should
+     * trigger the SMS alerts and wake you up.
+     *
+     * @param string $message
+     * @param array  $context
+     *
+     * @return void
+     */
+    public function alert($message, array $context = array())
+    {
+        

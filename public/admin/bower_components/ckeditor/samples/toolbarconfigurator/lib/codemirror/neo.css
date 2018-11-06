@@ -1,0 +1,44 @@
+<?php
+
+namespace Illuminate\Database\Migrations;
+
+use Closure;
+use Illuminate\Support\Str;
+use InvalidArgumentException;
+use Illuminate\Filesystem\Filesystem;
+
+class MigrationCreator
+{
+    /**
+     * The filesystem instance.
+     *
+     * @var \Illuminate\Filesystem\Filesystem
+     */
+    protected $files;
+
+    /**
+     * The registered post create hooks.
+     *
+     * @var array
+     */
+    protected $postCreate = [];
+
+    /**
+     * Create a new migration creator instance.
+     *
+     * @param  \Illuminate\Filesystem\Filesystem  $files
+     * @return void
+     */
+    public function __construct(Filesystem $files)
+    {
+        $this->files = $files;
+    }
+
+    /**
+     * Create a new migration at the given path.
+     *
+     * @param  string  $name
+     * @param  string  $path
+     * @param  string  $table
+     * @param  bool    $create
+ 

@@ -1,0 +1,76 @@
+<?php
+/*
+ * This file is part of the php-code-coverage package.
+ *
+ * (c) Sebastian Bergmann <sebastian@phpunit.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace SebastianBergmann\CodeCoverage\Report;
+
+use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Node\File;
+use SebastianBergmann\CodeCoverage\Util;
+
+/**
+ * Generates human readable output from a code coverage object.
+ *
+ * The output gets put into a text file our written to the CLI.
+ */
+class Text
+{
+    private $lowUpperBound;
+    private $highLowerBound;
+    private $showUncoveredFiles;
+    private $showOnlySummary;
+
+    private $colors = [
+        'green'  => "\x1b[30;42m",
+        'yellow' => "\x1b[30;43m",
+        'red'    => "\x1b[37;41m",
+        'header' => "\x1b[1;37;40m",
+        'reset'  => "\x1b[0m",
+        'eol'    => "\x1b[2K",
+    ];
+
+    /**
+     * @param int  $lowUpperBound
+     * @param int  $highLowerBound
+     * @param bool $showUncoveredFiles
+     * @param bool $showOnlySummary
+     */
+    public function __construct($lowUpperBound = 50, $highLowerBound = 90, $showUncoveredFiles = false, $showOnlySummary = false)
+    {
+        $this->lowUpperBound      = $lowUpperBound;
+        $this->highLowerBound     = $highLowerBound;
+        $this->showUncoveredFiles = $showUncoveredFiles;
+        $this->showOnlySummary    = $showOnlySummary;
+    }
+
+    /**
+     * @param CodeCoverage $coverage
+     * @param bool         $showColors
+     *
+     * @return string
+     */
+    public function process(CodeCoverage $coverage, $showColors = false)
+    {
+        $output = PHP_EOL . PHP_EOL;
+        $report = $coverage->getReport();
+        unset($coverage);
+
+        $colors = [
+            'header'  => '',
+            'classes' => '',
+            'methods' => '',
+            'lines'   => '',
+            'reset'   => '',
+            'eol'     => ''
+        ];
+
+        if ($showColors) {
+            $colors['classes'] = $this->getCoverageColor(
+                $report->getNumTestedClassesAndTraits(),
+                $

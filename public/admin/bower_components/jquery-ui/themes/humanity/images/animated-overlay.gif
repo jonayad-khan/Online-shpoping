@@ -1,0 +1,45 @@
+$options);
+                }
+
+                $data = $updateData['$set'];
+            }));
+
+        $this->assertTrue($this->storage->write('foo', 'bar'));
+
+        if (phpversion('mongodb')) {
+            $this->assertEquals('bar', $data[$this->options['data_field']]->getData());
+            $this->assertInstanceOf('MongoDB\BSON\UTCDateTime', $data[$this->options['time_field']]);
+            $this->assertInstanceOf('MongoDB\BSON\UTCDateTime', $data[$this->options['expiry_field']]);
+        } else {
+            $this->assertEquals('bar', $data[$this->options['data_field']]->bin);
+            $this->assertInstanceOf('MongoDate', $data[$this->options['time_field']]);
+            $this->assertInstanceOf('MongoDate', $data[$this->options['expiry_field']]);
+        }
+    }
+
+    public function testReplaceSessionData()
+    {
+        $collection = $this->createMongoCollectionMock();
+
+        $this->mongo->expects($this->once())
+            ->method('selectCollection')
+            ->with($this->options['database'], $this->options['collection'])
+            ->will($this->returnValue($collection));
+
+        $data = array();
+
+        $methodName = phpversion('mongodb') ? 'updateOne' : 'update';
+
+        $collection->expects($this->exactly(2))
+            ->method($methodName)
+            ->will($this->returnCallback(function ($criteria, $updateData, $options) use (&$data) {
+                $data = $updateData;
+            }));
+
+        $this->storage->write('foo', 'bar');
+        $this->storage->write('foo', 'foobar');
+
+        if (phpversion('mongodb')) {
+            $this->assertEquals('foobar', $data['$set'][$this->options['data_field']]->getData());
+        } else {
+            $this->assertEquals('foobar', $data['

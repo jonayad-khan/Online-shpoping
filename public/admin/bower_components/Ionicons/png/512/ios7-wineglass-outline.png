@@ -1,0 +1,98 @@
+:EXPECT_CONTENT . PHP_EOL;
+        $phptContent .= '--SKIPIF--' . PHP_EOL;
+        $phptContent .= $skipifSection;
+
+        $this->setPhpContent($phptContent);
+
+        $this->phpProcess
+             ->expects($this->at(0))
+             ->method('runJob')
+             ->with($skipifSection)
+             ->will($this->returnValue(['stdout' => '', 'stderr' => '']));
+
+        $this->testCase->run();
+    }
+
+    public function testShouldNotRunTestSectionIfSkipifSectionReturnsOutputWithSkipWord()
+    {
+        $skipifSection = '<?php echo "skip: Reason"; ?>' . PHP_EOL;
+
+        $phptContent = self::EXPECT_CONTENT . PHP_EOL;
+        $phptContent .= '--SKIPIF--' . PHP_EOL;
+        $phptContent .= $skipifSection;
+
+        $this->setPhpContent($phptContent);
+
+        $this->phpProcess
+             ->expects($this->once())
+             ->method('runJob')
+             ->with($skipifSection)
+             ->will($this->returnValue(['stdout' => 'skip: Reason', 'stderr' => '']));
+
+        $this->testCase->run();
+    }
+
+    public function testShouldRunCleanSectionWhenDefined()
+    {
+        $cleanSection = '<?php unlink("/tmp/something"); ?>' . PHP_EOL;
+
+        $phptContent = self::EXPECT_CONTENT . PHP_EOL;
+        $phptContent .= '--CLEAN--' . PHP_EOL;
+        $phptContent .= $cleanSection;
+
+        $this->setPhpContent($phptContent);
+
+        $this->phpProcess
+             ->expects($this->at(1))
+             ->method('runJob')
+             ->with($cleanSection);
+
+        $this->testCase->run();
+    }
+
+    public function testShouldThrowsAnExceptionWhenPhptFileIsEmpty()
+    {
+        $this->setPhpContent('');
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Invalid PHPT file');
+
+        $this->testCase->run();
+    }
+
+    public function testShouldThrowsAnExceptionWhenFileSectionIsMissing()
+    {
+        $this->setPhpContent(
+            <<<EOF
+--TEST--
+Something to decribe it
+--EXPECT--
+Something
+EOF
+        );
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Invalid PHPT file');
+
+        $this->testCase->run();
+    }
+
+    public function testShouldThrowsAnExceptionWhenThereIsNoExpecOrExpectifOrExpecregexSectionInPhptFile()
+    {
+        $this->setPhpContent(
+            <<<EOF
+--TEST--
+Something to decribe it
+--FILE--
+<?php
+echo "Hello world!\n";
+?>
+EOF
+        );
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Invalid PHPT file');
+
+        $this->testCase->run();
+    }
+

@@ -1,0 +1,71 @@
+en) {
+			if (!this.el) {
+				this.render();
+			}
+			this.el.show();
+			this.position();
+			this.isHidden = false;
+			this.trigger('show');
+		}
+	},
+
+
+	// Hides the popover, through CSS, but does not remove it from the DOM
+	hide: function() {
+		if (!this.isHidden) {
+			this.el.hide();
+			this.isHidden = true;
+			this.trigger('hide');
+		}
+	},
+
+
+	// Creates `this.el` and renders content inside of it
+	render: function() {
+		var _this = this;
+		var options = this.options;
+
+		this.el = $('<div class="fc-popover"/>')
+			.addClass(options.className || '')
+			.css({
+				// position initially to the top left to avoid creating scrollbars
+				top: 0,
+				left: 0
+			})
+			.append(options.content)
+			.appendTo(options.parentEl);
+
+		// when a click happens on anything inside with a 'fc-close' className, hide the popover
+		this.el.on('click', '.fc-close', function() {
+			_this.hide();
+		});
+
+		if (options.autoHide) {
+			this.listenTo($(document), 'mousedown', this.documentMousedown);
+		}
+	},
+
+
+	// Triggered when the user clicks *anywhere* in the document, for the autoHide feature
+	documentMousedown: function(ev) {
+		// only hide the popover if the click happened outside the popover
+		if (this.el && !$(ev.target).closest(this.el).length) {
+			this.hide();
+		}
+	},
+
+
+	// Hides and unregisters any handlers
+	removeElement: function() {
+		this.hide();
+
+		if (this.el) {
+			this.el.remove();
+			this.el = null;
+		}
+
+		this.stopListeningTo($(document), 'mousedown');
+	},
+
+
+	// Position

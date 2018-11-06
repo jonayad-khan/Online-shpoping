@@ -1,0 +1,60 @@
+      $this->getNumMethods(),
+            $asString
+        );
+    }
+
+    /**
+     * Returns the percentage of executed lines.
+     *
+     * @param bool $asString
+     *
+     * @return int
+     */
+    public function getLineExecutedPercent($asString = true)
+    {
+        return Util::percent(
+            $this->getNumExecutedLines(),
+            $this->getNumExecutableLines(),
+            $asString
+        );
+    }
+
+    /**
+     * Returns the number of classes and traits.
+     *
+     * @return int
+     */
+    public function getNumClassesAndTraits()
+    {
+        return $this->getNumClasses() + $this->getNumTraits();
+    }
+
+    /**
+     * Returns the number of tested classes and traits.
+     *
+     * @return int
+     */
+    public function getNumTestedClassesAndTraits()
+    {
+        return $this->getNumTestedClasses() + $this->getNumTestedTraits();
+    }
+
+    /**
+     * Returns the classes and traits of this node.
+     *
+     * @return array
+     */
+    public function getClassesAndTraits()
+    {
+        return array_merge($this->getClasses(), $this->getTraits());
+    }
+
+    /**
+     * Returns the classes of this node.
+     *
+     * @return array
+     */
+    abstract public function getClasses();
+
+    /**
+     *

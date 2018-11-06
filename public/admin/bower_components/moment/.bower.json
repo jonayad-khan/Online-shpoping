@@ -1,0 +1,20 @@
+nts[] = $next;
+                        } elseif ($next->isDelimiter(array(')'))) {
+                            break;
+                        } else {
+                            throw SyntaxErrorException::unexpectedToken('an argument', $next);
+                        }
+                    }
+
+                    if (empty($arguments)) {
+                        throw SyntaxErrorException::unexpectedToken('at least one argument', $next);
+                    }
+
+                    $result = new Node\FunctionNode($result, $identifier, $arguments);
+                }
+            } else {
+                throw SyntaxErrorException::unexpectedToken('selector', $peek);
+            }
+        }
+
+        if (count($stream->getUsed()) === $selectorStart

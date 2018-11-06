@@ -1,0 +1,45 @@
+'transform').length) {
+	            rp = R.transformPath(rp, this.attr('transform'));
+	        }
+	        return R.isPointInsidePath(rp, x, y);
+	    };
+	    /*\
+	     * Element.getBBox
+	     [ method ]
+	     **
+	     * Return bounding box for a given element
+	     **
+	     > Parameters
+	     **
+	     - isWithoutTransform (boolean) flag, `true` if you want to have bounding box before transformations. Default is `false`.
+	     = (object) Bounding box object:
+	     o {
+	     o     x: (number) top left corner x
+	     o     y: (number) top left corner y
+	     o     x2: (number) bottom right corner x
+	     o     y2: (number) bottom right corner y
+	     o     width: (number) width
+	     o     height: (number) height
+	     o }
+	    \*/
+	    elproto.getBBox = function (isWithoutTransform) {
+	        if (this.removed) {
+	            return {};
+	        }
+	        var _ = this._;
+	        if (isWithoutTransform) {
+	            if (_.dirty || !_.bboxwt) {
+	                this.realPath = getPath[this.type](this);
+	                _.bboxwt = pathDimensions(this.realPath);
+	                _.bboxwt.toString = x_y_w_h;
+	                _.dirty = 0;
+	            }
+	            return _.bboxwt;
+	        }
+	        if (_.dirty || _.dirtyT || !_.bbox) {
+	            if (_.dirty || !this.realPath) {
+	                _.bboxwt = 0;
+	                this.realPath = getPath[this.type](this);
+	            }
+	            _.bbox = pathDimensions(mapPath(this.realPath, this.matrix));
+	            _.bbox.toString = x_

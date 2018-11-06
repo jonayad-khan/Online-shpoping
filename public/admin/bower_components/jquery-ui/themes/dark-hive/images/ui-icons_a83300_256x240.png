@@ -1,0 +1,91 @@
+ion thereof.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="synonym">
+        <xsd:annotation>
+          <xsd:documentation>ISO-12620 2.1.2: Any term that represents the same or a very similar concept as the main entry term in a term entry.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="synonymous-phrase">
+        <xsd:annotation>
+          <xsd:documentation>ISO-12620 2.1.18.3: Phraseological unit in a language that expresses the same semantic content as another phrase in that same language.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="term">
+        <xsd:annotation>
+          <xsd:documentation>Indicates the marked text is a term.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="transcribed-form">
+        <xsd:annotation>
+          <xsd:documentation>ISO-12620 2.1.11: A form of a term resulting from an operation whereby the characters of one writing system are represented by characters from another writing system, taking into account the pronunciation of the characters converted.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="transliterated-form">
+        <xsd:annotation>
+          <xsd:documentation>ISO-12620 2.1.10: A form of a term resulting from an operation whereby the characters of an alphabetic writing system are represented by characters from another alphabetic writing system.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="truncated-term">
+        <xsd:annotation>
+          <xsd:documentation>ISO-12620 2.1.8.5: An abbreviated form of a term resulting from the omission of one or more term elements or syllables (e.g. 'flu' for 'influenza').</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="variant">
+        <xsd:annotation>
+          <xsd:documentation>ISO-12620 2.1.9: One of the alternate forms of a term.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="restypeValueList">
+    <xsd:annotation>
+      <xsd:documentation>Values for the attribute 'restype'.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="auto3state">
+        <xsd:annotation>
+          <xsd:documentation>Indicates a Windows RC AUTO3STATE control.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="autocheckbox">
+        <xsd:annotation>
+          <xsd:documentation>Indicates a Windows RC AUTOCHECKBOX control.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="autoradiobutton">
+        <xsd:annotation>
+          <xsd:documentation>Indicates a Windows RC AUTORADIOBUTTON control.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="bedit">
+        <xsd:annotation>
+          <xsd:documentation>Indicates a Windows RC BEDIT control.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="bitmap">
+        <xsd:annotation>
+          <xsd:documentation>Indicates a bitmap, for example a BITMAP resource in Windows.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="button">
+        <xsd:annotation>
+          <xsd:documentation>Indicates a button object, for example a BUTTON control Windows.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="caption">
+        <xsd:annotation>
+          <xsd:documentation>Indicates a caption, such as the caption of a dialog box.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="cell">
+        <xsd:annotation>
+          <xsd:documentation>Indicates the cell in a table, for example the content of the &lt;td&gt; element in HTML.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="checkbox">
+        <xsd:annotation>
+          <xsd:documentation>Indicates check box object, for example a CHECKBOX control in Windows.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+   

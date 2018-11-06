@@ -1,0 +1,20 @@
+ <xsd:annotation>
+          <xsd:documentation>Represents a rejected version of the target element.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="reference">
+        <xsd:annotation>
+          <xsd:documentation>Represents a translation to be used for reference purposes only, for example from a related product or a different language.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="accepted">
+        <xsd:annotation>
+          <xsd:documentation>Represents a proposed translation that was used for the translation of the trans-unit, possibly modified.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!-- Other Types -->
+  <xsd:complexType name="ElemType_ExternalReference">
+    <xsd:choice>
+      <xsd:element ref="xlf:internal-fil

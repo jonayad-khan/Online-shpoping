@@ -1,0 +1,41 @@
+ Vorlíků', 'U zeleného ptáka', 'U Čekárny', 'U Županských', 'Ukrajinská',
+        'Újezdská', 'V Jámě', 'V Předním Hloubětíně', 'V Rohu', 'V Uličce', 'Valčíkova', 'Ve Lhotce', 'Ve Vrších',
+        'Velenická', 'Violková', 'Vlašská', 'Voděradská', 'Vyderská', 'Vysokoškolská', 'Výpadová', 'Vřesovická',
+        'Za Pekárnou', 'Zámecká',
+    );
+
+    /**
+     * Randomly returns a czech city.
+     *
+     * @example 'Krnov'
+     *
+     * @return string
+     */
+    public function city()
+    {
+        return static::randomElement(static::$city);
+    }
+
+    /**
+     * Randomly returns a czech region.
+     *
+     * @example 'Liberecký kraj'
+     *
+     * @return string
+     */
+    public static function region()
+    {
+        return static::randomElement(static::$regions);
+    }
+
+    /**
+     * Real street names as random data can hardly be
+     * generated due to inflection.
+     *
+     * @example 'U Vodárny'
+     *
+     * @return string
+     */
+    public function streetName()
+    {
+        return static::randomElement

@@ -1,0 +1,186 @@
+e)
+    {
+        PHPUnit::assertNotNull(
+            $cookie = $this->getCookie($cookieName),
+            "Cookie [{$cookieName}] not present on response."
+        );
+
+        if (! $cookie || is_null($value)) {
+            return $this;
+        }
+
+        $cookieValue = $cookie->getValue();
+
+        $actual = $encrypted
+            ? app('encrypter')->decrypt($cookieValue) : $cookieValue;
+
+        PHPUnit::assertEquals(
+            $value, $actual,
+            "Cookie [{$cookieName}] was found, but value [{$actual}] does not match [{$value}]."
+        );
+
+        return $this;
+    }
+
+    /**
+     * Asserts that the response contains the given cookie and is expired.
+     *
+     * @param  string  $cookieName
+     * @return $this
+     */
+    public function assertCookieExpired($cookieName)
+    {
+        PHPUnit::assertNotNull(
+            $cookie = $this->getCookie($cookieName),
+            "Cookie [{$cookieName}] not present on response."
+        );
+
+        $expiresAt = Carbon::createFromTimestamp($cookie->getExpiresTime());
+
+        PHPUnit::assertTrue(
+            $expiresAt->lessThan(Carbon::now()),
+            "Cookie [{$cookieName}] is not expired, it expires at [{$expiresAt}]."
+        );
+
+        return $this;
+    }
+
+    /**
+     * Asserts that the response does not contains the given cookie.
+     *
+     * @param  string  $cookieName
+     * @return $this
+     */
+    public function assertCookieMissing($cookieName)
+    {
+        PHPUnit::assertNull(
+            $this->getCookie($cookieName),
+            "Cookie [{$cookieName}] is present on response."
+        );
+
+        return $this;
+    }
+
+    /**
+     * Get the given cookie from the response.
+     *
+     * @param  string  $cookieName
+     * @return \Symfony\Component\HttpFoundation\Cookie|null
+     */
+    protected function getCookie($cookieName)
+    {
+        foreach ($this->headers->getCookies() as $cookie) {
+            if ($cookie->getName() === $cookieName) {
+                return $cookie;
+            }
+        }
+    }
+
+    /**
+     * Assert that the given string is contained within the response.
+     *
+     * @param  string  $value
+     * @return $this
+     */
+    public function assertSee($value)
+    {
+        PHPUnit::assertContains($value, $this->getContent());
+
+        return $this;
+    }
+
+    /**
+     * Assert that the given strings are contained in order within the response.
+     *
+     * @param  array  $values
+     * @return $this
+     */
+    public function assertSeeInOrder(array $values)
+    {
+        $position = 0;
+
+        foreach ($values as $value) {
+            $valuePosition = mb_strpos($this->getContent(), $value, $position);
+
+            if ($valuePosition === false || $valuePosition < $position) {
+                PHPUnit::fail(
+                    'Failed asserting that \''.$this->getContent().
+                    '\' contains "'.$value.'" in specified order.'
+                );
+            }
+
+            $position = $valuePosition + mb_strlen($value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Assert that the given string is contained within the response text.
+     *
+     * @param  string  $value
+     * @return $this
+     */
+    public function assertSeeText($value)
+    {
+        PHPUnit::assertContains($value, strip_tags($this->getContent()));
+
+        return $this;
+    }
+
+    /**
+     * Assert that the given strings are contained in order within the response text.
+     *
+     * @param  array  $values
+     * @return $this
+     */
+    public function assertSeeTextInOrder(array $values)
+    {
+        $position = 0;
+
+        foreach ($values as $value) {
+            $valuePosition = mb_strpos(strip_tags($this->getContent()), $value, $position);
+
+            if ($valuePosition === false || $valuePosition < $position) {
+                PHPUnit::fail(
+                    'Failed asserting that \''.strip_tags($this->getContent()).
+                    '\' contains "'.$value.'" in specified order.'
+                );
+            }
+
+            $position = $valuePosition + mb_strlen($value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Assert that the given string is not contained within the response.
+     *
+     * @param  string  $value
+     * @return $this
+     */
+    public function assertDontSee($value)
+    {
+        PHPUnit::assertNotContains($value, $this->getContent());
+
+        return $this;
+    }
+
+    /**
+     * Assert that the given string is not contained within the response text.
+     *
+     * @param  string  $value
+     * @return $this
+     */
+    public function assertDontSeeText($value)
+    {
+        PHPUnit::assertNotContains($value, strip_tags($this->getContent()));
+
+        return $this;
+    }
+
+    /**
+     * Assert that the response is a superset of the given JSON.
+     *
+     * @param  arra

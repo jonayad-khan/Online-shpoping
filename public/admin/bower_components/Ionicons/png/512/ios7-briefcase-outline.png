@@ -1,0 +1,38 @@
+eto' : 'letom';
+            } else if (number === 2) {
+                result += withoutSuffix || isFuture ? 'leti' : 'letoma';
+            } else if (number < 5) {
+                result += withoutSuffix || isFuture ? 'leta' : 'leti';
+            } else {
+                result += withoutSuffix || isFuture ? 'let' : 'leti';
+            }
+            return result;
+    }
+}
+
+hooks.defineLocale('sl', {
+    months : 'januar_februar_marec_april_maj_junij_julij_avgust_september_oktober_november_december'.split('_'),
+    monthsShort : 'jan._feb._mar._apr._maj._jun._jul._avg._sep._okt._nov._dec.'.split('_'),
+    monthsParseExact: true,
+    weekdays : 'nedelja_ponedeljek_torek_sreda_četrtek_petek_sobota'.split('_'),
+    weekdaysShort : 'ned._pon._tor._sre._čet._pet._sob.'.split('_'),
+    weekdaysMin : 'ne_po_to_sr_če_pe_so'.split('_'),
+    weekdaysParseExact : true,
+    longDateFormat : {
+        LT : 'H:mm',
+        LTS : 'H:mm:ss',
+        L : 'DD.MM.YYYY',
+        LL : 'D. MMMM YYYY',
+        LLL : 'D. MMMM YYYY H:mm',
+        LLLL : 'dddd, D. MMMM YYYY H:mm'
+    },
+    calendar : {
+        sameDay  : '[danes ob] LT',
+        nextDay  : '[jutri ob] LT',
+
+        nextWeek : function () {
+            switch (this.day()) {
+                case 0:
+                    return '[v] [nedeljo] [ob] LT';
+                case 3:
+                    r

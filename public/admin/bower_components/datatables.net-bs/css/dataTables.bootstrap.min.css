@@ -1,0 +1,150 @@
+<?php
+
+namespace Illuminate\Validation\Concerns;
+
+use Illuminate\Support\Arr;
+
+trait ReplacesAttributes
+{
+    /**
+     * Replace all place-holders for the between rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array   $parameters
+     * @return string
+     */
+    protected function replaceBetween($message, $attribute, $rule, $parameters)
+    {
+        return str_replace([':min', ':max'], $parameters, $message);
+    }
+
+    /**
+     * Replace all place-holders for the date_format rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array   $parameters
+     * @return string
+     */
+    protected function replaceDateFormat($message, $attribute, $rule, $parameters)
+    {
+        return str_replace(':format', $parameters[0], $message);
+    }
+
+    /**
+     * Replace all place-holders for the different rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array   $parameters
+     * @return string
+     */
+    protected function replaceDifferent($message, $attribute, $rule, $parameters)
+    {
+        return $this->replaceSame($message, $attribute, $rule, $parameters);
+    }
+
+    /**
+     * Replace all place-holders for the digits rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array   $parameters
+     * @return string
+     */
+    protected function replaceDigits($message, $attribute, $rule, $parameters)
+    {
+        return str_replace(':digits', $parameters[0], $message);
+    }
+
+    /**
+     * Replace all place-holders for the digits (between) rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array   $parameters
+     * @return string
+     */
+    protected function replaceDigitsBetween($message, $attribute, $rule, $parameters)
+    {
+        return $this->replaceBetween($message, $attribute, $rule, $parameters);
+    }
+
+    /**
+     * Replace all place-holders for the min rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array   $parameters
+     * @return string
+     */
+    protected function replaceMin($message, $attribute, $rule, $parameters)
+    {
+        return str_replace(':min', $parameters[0], $message);
+    }
+
+    /**
+     * Replace all place-holders for the max rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array   $parameters
+     * @return string
+     */
+    protected function replaceMax($message, $attribute, $rule, $parameters)
+    {
+        return str_replace(':max', $parameters[0], $message);
+    }
+
+    /**
+     * Replace all place-holders for the in rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array   $parameters
+     * @return string
+     */
+    protected function replaceIn($message, $attribute, $rule, $parameters)
+    {
+        foreach ($parameters as &$parameter) {
+            $parameter = $this->getDisplayableValue($attribute, $parameter);
+        }
+
+        return str_replace(':values', implode(', ', $parameters), $message);
+    }
+
+    /**
+     * Replace all place-holders for the not_in rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array   $parameters
+     * @return string
+     */
+    protected function replaceNotIn($message, $attribute, $rule, $parameters)
+    {
+        return $this->replaceIn($message, $attribute, $rule, $parameters);
+    }
+
+    /**
+     * Replace all place-holders for the in_array rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array   $parameters
+     * @return string
+     */
+    protected function replaceInArray($message, $attribute, $rule, $parameters)
+    {
+        return str_replace(':other', $this->getDisplayableAttribute($parameters[0]), $message);

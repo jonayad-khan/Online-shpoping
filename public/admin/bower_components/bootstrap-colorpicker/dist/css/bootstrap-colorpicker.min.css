@@ -1,0 +1,110 @@
+�ులు',
+        M : 'ఒక నెల',
+        MM : '%d నెలలు',
+        y : 'ఒక సంవత్సరం',
+        yy : '%d సంవత్సరాలు'
+    },
+    dayOfMonthOrdinalParse : /\d{1,2}వ/,
+    ordinal : '%dవ',
+    meridiemParse: /రాత్రి|ఉదయం|మధ్యాహ్నం|సాయంత్రం/,
+    meridiemHour : function (hour, meridiem) {
+        if (hour === 12) {
+            hour = 0;
+        }
+        if (meridiem === 'రాత్రి') {
+            return hour < 4 ? hour : hour + 12;
+        } else if (meridiem === 'ఉదయం') {
+            return hour;
+        } else if (meridiem === 'మధ్యాహ్నం') {
+            return hour >= 10 ? hour : hour + 12;
+        } else if (meridiem === 'సాయంత్రం') {
+            return hour + 12;
+        }
+    },
+    meridiem : function (hour, minute, isLower) {
+        if (hour < 4) {
+            return 'రాత్రి';
+        } else if (hour < 10) {
+            return 'ఉదయం';
+        } else if (hour < 17) {
+            return 'మధ్యాహ్నం';
+        } else if (hour < 20) {
+            return 'సాయంత్రం';
+        } else {
+            return 'రాత్రి';
+        }
+    },
+    week : {
+        dow : 0, // Sunday is the first day of the week.
+        doy : 6  // The week that contains Jan 1st is the first week of the year.
+    }
+});
+
+//! moment.js locale configuration
+//! locale : Tetun Dili (East Timor) [tet]
+//! author : Joshua Brooks : https://github.com/joshbrooks
+//! author : Onorio De J. Afonso : https://github.com/marobo
+
+hooks.defineLocale('tet', {
+    months : 'Janeiru_Fevereiru_Marsu_Abril_Maiu_Juniu_Juliu_Augustu_Setembru_Outubru_Novembru_Dezembru'.split('_'),
+    monthsShort : 'Jan_Fev_Mar_Abr_Mai_Jun_Jul_Aug_Set_Out_Nov_Dez'.split('_'),
+    weekdays : 'Domingu_Segunda_Tersa_Kuarta_Kinta_Sexta_Sabadu'.split('_'),
+    weekdaysShort : 'Dom_Seg_Ters_Kua_Kint_Sext_Sab'.split('_'),
+    weekdaysMin : 'Do_Seg_Te_Ku_Ki_Sex_Sa'.split('_'),
+    longDateFormat : {
+        LT : 'HH:mm',
+        LTS : 'HH:mm:ss',
+        L : 'DD/MM/YYYY',
+        LL : 'D MMMM YYYY',
+        LLL : 'D MMMM YYYY HH:mm',
+        LLLL : 'dddd, D MMMM YYYY HH:mm'
+    },
+    calendar : {
+        sameDay: '[Ohin iha] LT',
+        nextDay: '[Aban iha] LT',
+        nextWeek: 'dddd [iha] LT',
+        lastDay: '[Horiseik iha] LT',
+        lastWeek: 'dddd [semana kotuk] [iha] LT',
+        sameElse: 'L'
+    },
+    relativeTime : {
+        future : 'iha %s',
+        past : '%s liuba',
+        s : 'minutu balun',
+        m : 'minutu ida',
+        mm : 'minutus %d',
+        h : 'horas ida',
+        hh : 'horas %d',
+        d : 'loron ida',
+        dd : 'loron %d',
+        M : 'fulan ida',
+        MM : 'fulan %d',
+        y : 'tinan ida',
+        yy : 'tinan %d'
+    },
+    dayOfMonthOrdinalParse: /\d{1,2}(st|nd|rd|th)/,
+    ordinal : function (number) {
+        var b = number % 10,
+            output = (~~(number % 100 / 10) === 1) ? 'th' :
+            (b === 1) ? 'st' :
+            (b === 2) ? 'nd' :
+            (b === 3) ? 'rd' : 'th';
+        return number + output;
+    },
+    week : {
+        dow : 1, // Monday is the first day of the week.
+        doy : 4  // The week that contains Jan 4th is the first week of the year.
+    }
+});
+
+//! moment.js locale configuration
+//! locale : Thai [th]
+//! author : Kridsada Thanabulpong : https://github.com/sirn
+
+hooks.defineLocale('th', {
+    months : 'มกราคม_กุมภาพันธ์_มีนาคม_เมษายน_พฤษภาคม_มิถุนายน_กรกฎาคม_สิงหาคม_กันยายน_ตุลาคม_พฤศจิกายน_ธันวาคม'.split('_'),
+    monthsShort : 'ม.ค._ก.พ._มี.ค._เม.ย._พ.ค._มิ.ย._ก.ค._ส.ค._ก.ย._ต.ค._พ.ย._ธ.ค.'.split('_'),
+    monthsParseExact: true,
+    weekdays : 'อาทิตย์_จันทร์_อังคาร_พุธ_พฤหัสบดี_ศุกร์_เสาร์'.split('_'),
+    weekdaysShort : 'อาทิตย์_จันทร์_อังคาร_พุธ_พฤหัส_ศุกร์_เสาร์'.split('_'), // yes, three characters difference
+    weekday

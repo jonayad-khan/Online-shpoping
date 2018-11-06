@@ -1,0 +1,27 @@
+<?php $__env->startSection('content'); ?>
+    <div class="men">
+        <div class="container">
+            <div class="col-md-12 register">
+                <h3 class="text-center text-success">Welcome <?php echo e(Session::get('customerName')); ?>. You have to give us product shipping info to complete your valuable order. If your billing info and shipping info are same then just press on save shipping info button.</h3>
+                <hr/>
+            </div>
+
+            <br/>
+            <hr/>
+            <br/>
+            <div class="col-md-12 register">
+                <br/><br/>
+                <form action="<?php echo e(url('/new-shipping')); ?>" method="POST">
+                    <?php echo e(csrf_field()); ?>
+
+                    <div class="register-top-grid">
+                        <h1 class="text-center">Shipping From Here</h1>
+                        <br/><br/><br/>
+                        <div>
+                            <span>Full Name<label>*</label></span>
+                            <input type="text" value="<?php echo e($customer->first_name.' '.$customer->last_name); ?>" name="full_name">
+                            <span><?php echo e($errors->has('first_name') ? $errors->first('first_name') : ' '); ?></span>
+                        </div>
+                        <div>
+                            <span>Email Address<label>*</label></span>
+                            <input type="email" name="email" value="<?php echo e($customer->email); ?>" class="form-cont

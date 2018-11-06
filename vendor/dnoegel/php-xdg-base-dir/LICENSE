@@ -1,0 +1,45 @@
+<?php
+
+namespace Illuminate\Database\Schema\Grammars;
+
+use Illuminate\Support\Fluent;
+use Illuminate\Database\Connection;
+use Illuminate\Database\Schema\Blueprint;
+
+class MySqlGrammar extends Grammar
+{
+    /**
+     * The possible column modifiers.
+     *
+     * @var array
+     */
+    protected $modifiers = [
+        'Unsigned', 'VirtualAs', 'StoredAs', 'Charset', 'Collate', 'Nullable',
+        'Default', 'Increment', 'Comment', 'After', 'First',
+    ];
+
+    /**
+     * The possible column serials.
+     *
+     * @var array
+     */
+    protected $serials = ['bigInteger', 'integer', 'mediumInteger', 'smallInteger', 'tinyInteger'];
+
+    /**
+     * Compile the query to determine the list of tables.
+     *
+     * @return string
+     */
+    public function compileTableExists()
+    {
+        return 'select * from information_schema.tables where table_schema = ? and table_name = ?';
+    }
+
+    /**
+     * Compile the query to determine the list of columns.
+     *
+     * @return string
+     */
+    public function compileColumnListing()
+    {
+        ret

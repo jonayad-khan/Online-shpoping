@@ -1,0 +1,62 @@
+ canvas = stat.getElementsByTagName('canvas')[0]
+    , report = fragment('<ul id="mocha-report"></ul>')
+    , stack = [report]
+    , progress
+    , ctx
+
+  root = root || document.getElementById('mocha');
+
+  if (canvas.getContext) {
+    var ratio = window.devicePixelRatio || 1;
+    canvas.style.width = canvas.width;
+    canvas.style.height = canvas.height;
+    canvas.width *= ratio;
+    canvas.height *= ratio;
+    ctx = canvas.getContext('2d');
+    ctx.scale(ratio, ratio);
+    progress = new Progress;
+  }
+
+  if (!root) return error('#mocha div missing, add it to your document');
+
+  // pass toggle
+  on(passesLink, 'click', function(){
+    unhide();
+    var name = /pass/.test(report.className) ? '' : ' pass';
+    report.className = report.className.replace(/fail|pass/g, '') + name;
+    if (report.className.trim()) hideSuitesWithout('test pass');
+  });
+
+  // failure toggle
+  on(failuresLink, 'click', function(){
+    unhide();
+    var name = /fail/.test(report.className) ? '' : ' fail';
+    report.className = report.className.replace(/fail|pass/g, '') + name;
+    if (report.className.trim()) hideSuitesWithout('test fail');
+  });
+
+  root.appendChild(stat);
+  root.appendChild(report);
+
+  if (progress) progress.size(40);
+
+  runner.on('suite', function(suite){
+    if (suite.root) return;
+
+    // suite
+    var url = self.suiteURL(suite);
+    var el = fragment('<li class="suite"><h1><a href="%s">%s</a></h1></li>', url, escape(suite.title));
+
+    // container
+    stack[0].appendChild(el);
+    stack.unshift(document.createElement('ul'));
+    el.appendChild(stack[0]);
+  });
+
+  runner.on('suite end', function(suite){
+    if (suite.root) return;
+    stack.shift();
+  });
+
+  runner.on('fail', function(test, err){
+    if ('hook

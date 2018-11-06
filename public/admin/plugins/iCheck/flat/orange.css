@@ -1,0 +1,36 @@
+'coverage'        => 0,
+                'crap'            => 0,
+                'package'         => $trait['package'],
+                'link'            => $link . $trait['startLine']
+            ];
+
+            $this->startLines[$trait['startLine']] = &$this->traits[$traitName];
+            $this->endLines[$trait['endLine']]     = &$this->traits[$traitName];
+
+            foreach ($trait['methods'] as $methodName => $method) {
+                $this->traits[$traitName]['methods'][$methodName] = $this->newMethod($methodName, $method, $link);
+
+                $this->startLines[$method['startLine']] = &$this->traits[$traitName]['methods'][$methodName];
+                $this->endLines[$method['endLine']]     = &$this->traits[$traitName]['methods'][$methodName];
+            }
+        }
+    }
+
+    /**
+     * @param \PHP_Token_Stream $tokens
+     */
+    protected function processFunctions(\PHP_Token_Stream $tokens)
+    {
+        $functions = $tokens->getFunctions();
+        unset($tokens);
+
+        $link = $this->getId() . '.html#';
+
+        foreach ($functions as $functionName => $function) {
+            $this->functions[$functionName] = [
+                'functionName'    => $functionName,
+                'signature'       => $function['signature'],
+                'startLine'       => $function['startLine'],
+                'executableLines' => 0,
+                'executedLines'   => 0,
+                'ccn'             => $function['ccn'

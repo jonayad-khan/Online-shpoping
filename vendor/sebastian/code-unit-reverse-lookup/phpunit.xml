@@ -1,0 +1,24 @@
+, FunctionNode $function)
+    {
+        if ('*' === $xpath->getElement()) {
+            throw new ExpressionErrorException('"*:nth-of-type()" is not implemented.');
+        }
+
+        return $this->translateNthChild($xpath, $function, true, false);
+    }
+
+    /**
+     * @param XPathExpr    $xpath
+     * @param FunctionNode $function
+     *
+     * @return XPathExpr
+     *
+     * @throws ExpressionErrorException
+     */
+    public function translateContains(XPathExpr $xpath, FunctionNode $function)
+    {
+        $arguments = $function->getArguments();
+        foreach ($arguments as $token) {
+            if (!($token->isString() || $token->isIdentifier())) {
+                throw new ExpressionErrorException(
+                    'Expected a single string or identifier for :c

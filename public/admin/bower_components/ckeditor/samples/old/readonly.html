@@ -1,0 +1,45 @@
+="xlf:trans-unit"/>
+        <xsd:element maxOccurs="unbounded" minOccurs="0" ref="xlf:bin-unit"/>
+      </xsd:choice>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="group">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:sequence>
+          <xsd:element maxOccurs="unbounded" minOccurs="0" ref="xlf:context-group"/>
+          <xsd:element maxOccurs="unbounded" minOccurs="0" ref="xlf:count-group"/>
+          <xsd:element maxOccurs="unbounded" minOccurs="0" ref="xlf:note"/>
+          <xsd:any maxOccurs="unbounded" minOccurs="0" namespace="##other" processContents="strict"/>
+        </xsd:sequence>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element maxOccurs="unbounded" minOccurs="0" ref="xlf:group"/>
+          <xsd:element maxOccurs="unbounded" minOccurs="0" ref="xlf:trans-unit"/>
+          <xsd:element maxOccurs="unbounded" minOccurs="0" ref="xlf:bin-unit"/>
+        </xsd:choice>
+      </xsd:sequence>
+      <xsd:attribute name="id" type="xsd:string" use="optional"/>
+      <xsd:attribute name="datatype" type="xlf:AttrType_datatype" use="optional"/>
+      <xsd:attribute default="default" ref="xml:space" use="optional"/>
+      <xsd:attribute name="restype" type="xlf:AttrType_restype" use="optional"/>
+      <xsd:attribute name="resname" type="xsd:string" use="optional"/>
+      <xsd:attribute name="extradata" type="xsd:string" use="optional"/>
+      <xsd:attribute name="extype" type="xsd:string" use="optional"/>
+      <xsd:attribute name="help-id" type="xsd:NMTOKEN" use="optional"/>
+      <xsd:attribute name="menu" type="xsd:string" use="optional"/>
+      <xsd:attribute name="menu-option" type="xsd:string" use="optional"/>
+      <xsd:attribute name="menu-name" type="xsd:string" use="optional"/>
+      <xsd:attribute name="coord" type="xlf:AttrType_Coordinates" use="optional"/>
+      <xsd:attribute name="font" type="xsd:string" use="optional"/>
+      <xsd:attribute name="css-style" type="xsd:string" use="optional"/>
+      <xsd:attribute name="style" type="xsd:NMTOKEN" use="optional"/>
+      <xsd:attribute name="exstyle" type="xsd:NMTOKEN" use="optional"/>
+      <xsd:attribute default="yes" name="translate" type="xlf:AttrType_YesNo" use="optional"/>
+      <xsd:attribute default="yes" name="reformat" type="xlf:AttrType_reformat" use="optional"/>
+      <xsd:attribute default="pixel" name="size-unit" type="xlf:AttrType_size-unit" use="optional"/>
+      <xsd:attribute name="maxwidth" type="xsd:NMTOKEN" use="optional"/>
+      <xsd:attribute name="minwidth" type="xsd:NMTOKEN" use="optional"/>
+      <xsd:attribute name="maxheight" type="xsd:NMTOKEN" use="optional"/>
+      <xsd:attribute name="minheight" type="xsd:NMTOKEN" use="optional"/>
+      <xsd:attribute name="maxbytes" type="xsd:NMTOKEN" use="optional"/>
+      <xsd:attribute name="minbytes" type="xsd:NMTOKEN" use="op

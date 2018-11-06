@@ -1,0 +1,43 @@
+<?php
+
+/*
+ * This file is part of the Symfony package.
+ *
+ * (c) Fabien Potencier <fabien@symfony.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Symfony\Component\VarDumper\Caster;
+
+use Symfony\Component\VarDumper\Cloner\Stub;
+
+/**
+ * Casts Redis class from ext-redis to array representation.
+ *
+ * @author Nicolas Grekas <p@tchwork.com>
+ */
+class RedisCaster
+{
+    private static $serializer = array(
+        \Redis::SERIALIZER_NONE => 'NONE',
+        \Redis::SERIALIZER_PHP => 'PHP',
+        2 => 'IGBINARY', // Optional Redis::SERIALIZER_IGBINARY
+    );
+
+    public static function castRedis(\Redis $c, array $a, Stub $stub, $isNested)
+    {
+        $prefix = Caster::PREFIX_VIRTUAL;
+
+        if (!$connected = $c->isConnected()) {
+            return $a + array(
+                $prefix.'isConnected' => $connected,
+            );
+        }
+
+        $ser = $c->getOption(\Redis::OPT_SERIALIZER);
+        $retry = defined('Redis::OPT_SCAN') ? $c->getOption(\Redis::OPT_SCAN) : 0;
+
+        return $a + array(
+        

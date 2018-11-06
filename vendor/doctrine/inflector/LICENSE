@@ -1,0 +1,27 @@
+</span><span class="step">64</span><span class="step">96</span></div>
+  <div class="usage">
+    <label>Classname:</label>
+    <input class="name" type="text" readonly="readonly" onClick="this.select();" value="ion-ios-analytics-outline" />
+
+    <label>Selectable:</label>
+    <span class="ion">&#xf3cd;</span>
+
+    <label>Escaped HTML:</label>
+    <input class="html" type="text" readonly="readonly" onClick="this.select();" value="&amp;#xf3cd;" />
+
+    <label>CSS Content:</label>
+    <input class="css" type="text" readonly="readonly" onClick="this.select();" value="\f3cd" />
+  </div>
+</div>
+<div class="icon-row">
+  <div class="preview-icon"><span class="step size-12">
+      <i class="icon ion-ios-arrow-back"></i>
+    </span><span class="step size-14">
+      <i class="icon ion-ios-arrow-back"></i>
+    </span><span class="step size-16">
+      <i class="icon ion-ios-arrow-back"></i>
+    </span><span class="step size-18">
+      <i class="icon ion-ios-arrow-back"></i>
+    </span><span class="step size-21">
+      <i class="icon ion-ios-arrow-back"></i>
+    <

@@ -1,0 +1,106 @@
+en rules and merge them into current rules.
+     *
+     * @param  array  $rules
+     * @return void
+     */
+    public function addRules($rules)
+    {
+        // The primary purpose of this parser is to expand any "*" rules to the all
+        // of the explicit rules needed for the given data. For example the rule
+        // names.* would get expanded to names.0, names.1, etc. for this data.
+        $response = (new ValidationRuleParser($this->data))
+                            ->explode($rules);
+
+        $this->rules = array_merge_recursive(
+            $this->rules, $response->rules
+        );
+
+        $this->implicitAttributes = array_merge(
+            $this->implicitAttributes, $response->implicitAttributes
+        );
+    }
+
+    /**
+     * Add conditions to a given field based on a Closure.
+     *
+     * @param  string|array  $attribute
+     * @param  string|array  $rules
+     * @param  callable  $callback
+     * @return $this
+     */
+    public function sometimes($attribute, $rules, callable $callback)
+    {
+        $payload = new Fluent($this->getData());
+
+        if (call_user_func($callback, $payload)) {
+            foreach ((array) $attribute as $key) {
+                $this->addRules([$key => $rules]);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Register an array of custom validator extensions.
+     *
+     * @param  array  $extensions
+     * @return void
+     */
+    public function addExtensions(array $extensions)
+    {
+        if ($extensions) {
+            $keys = array_map('\Illuminate\Support\Str::snake', array_keys($extensions));
+
+            $extensions = array_combine($keys, array_values($extensions));
+        }
+
+        $this->extensions = array_merge($this->extensions, $extensions);
+    }
+
+    /**
+     * Register an array of custom implicit validator extensions.
+     *
+     * @param  array  $extensions
+     * @return void
+     */
+    public function addImplicitExtensions(array $extensions)
+    {
+        $this->addExtensions($extensions);
+
+        foreach ($extensions as $rule => $extension) {
+            $this->implicitRules[] = Str::studly($rule);
+        }
+    }
+
+    /**
+     * Register an array of custom implicit validator extensions.
+     *
+     * @param  array  $extensions
+     * @return void
+     */
+    public function addDependentExtensions(array $extensions)
+    {
+        $this->addExtensions($extensions);
+
+        foreach ($extensions as $rule => $extension) {
+            $this->dependentRules[] = Str::studly($rule);
+        }
+    }
+
+    /**
+     * Register a custom validator extension.
+     *
+     * @param  string  $rule
+     * @param  \Closure|string  $extension
+     * @return void
+     */
+    public function addExtension($rule, $extension)
+    {
+        $this->extensions[Str::snake($rule)] = $extension;
+    }
+
+    /**
+     * Register a custom implicit validator extension.
+     *
+     * @param  st

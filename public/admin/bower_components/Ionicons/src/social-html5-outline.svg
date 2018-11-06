@@ -1,0 +1,27 @@
+s.rights[leftIndex] - this.lefts[leftIndex];
+	},
+
+
+	// Gets the top offset (from document top) of the element at the given index
+	getTopOffset: function(topIndex) {
+		this.ensureBuilt();
+		return this.tops[topIndex];
+	},
+
+
+	// Gets the top position (from offsetParent top) of the element at the given position
+	getTopPosition: function(topIndex) {
+		this.ensureBuilt();
+		return this.tops[topIndex] - this.origin.top;
+	},
+
+	// Gets the bottom offset (from the document top) of the element at the given index.
+	// This value is NOT relative to the offsetParent's bottom edge, like the CSS concept of "bottom" would be.
+	getBottomOffset: function(topIndex) {
+		this.ensureBuilt();
+		return this.bottoms[topIndex];
+	},
+
+
+	// Gets the bottom position (from the offsetParent top) of the element at the given index.
+	// This value is NOT relative to the offsetParent's bottom edge, like the CSS concept of "bo

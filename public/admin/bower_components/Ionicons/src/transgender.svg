@@ -1,0 +1,51 @@
+atName($reflector),
+            $style,
+            OutputFormatter::escape(Json::encode($value)),
+            $style
+        );
+    }
+
+    /**
+     * Helper for getting output style for a given value's type.
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
+    private static function getTypeStyle($value)
+    {
+        if (is_int($value) || is_float($value)) {
+            return 'number';
+        } elseif (is_string($value)) {
+            return 'string';
+        } elseif (is_bool($value) || is_null($value)) {
+            return 'bool';
+        } else {
+            return 'strong';
+        }
+    }
+
+    /**
+     * Format a property signature.
+     *
+     * @param \ReflectionProperty $reflector
+     *
+     * @return string Formatted signature
+     */
+    private static function formatProperty(\ReflectionProperty $reflector)
+    {
+        return sprintf(
+            '%s <strong>$%s</strong>',
+            self::formatModifiers($reflector),
+            $reflector->getName()
+        );
+    }
+
+    /**
+     * Format a function signature.
+     *
+     * @param \ReflectionFunction $reflector
+     *
+     * @return string Formatted signature
+     */
+    private static function formatFun

@@ -1,0 +1,21 @@
+slator$1.translate,
+        mm     : translator$1.translate,
+        h      : translator$1.translate,
+        hh     : translator$1.translate,
+        d      : 'дан',
+        dd     : translator$1.translate,
+        M      : 'месец',
+        MM     : translator$1.translate,
+        y      : 'годину',
+        yy     : translator$1.translate
+    },
+    dayOfMonthOrdinalParse: /\d{1,2}\./,
+    ordinal : '%d.',
+    week : {
+        dow : 1, // Monday is the first day of the week.
+        doy : 7  // The week that contains Jan 1st is the first week of the year.
+    }
+});
+
+//! moment.js locale configuration
+//! locale : S

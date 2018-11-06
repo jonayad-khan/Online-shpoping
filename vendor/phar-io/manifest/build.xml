@@ -1,0 +1,78 @@
+t !== count((array) $this->_expectedArgs)) {
+            return false;
+        }
+        for ($i=0; $i<$argCount; $i++) {
+            $param =& $args[$i];
+            if (!$this->_matchArg($this->_expectedArgs[$i], $param)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if passed argument matches an argument expectation
+     *
+     * @param mixed $expected
+     * @param mixed &$actual
+     * @return bool
+     */
+    protected function _matchArg($expected, &$actual)
+    {
+        if ($expected === $actual) {
+            return true;
+        }
+        if (!is_object($expected) && !is_object($actual) && $expected == $actual) {
+            return true;
+        }
+        if (is_string($expected) && is_object($actual)) {
+            $result = $actual instanceof $expected;
+            if ($result) {
+                return true;
+            }
+        }
+        if ($expected instanceof \Mockery\Matcher\MatcherAbstract) {
+            return $expected->match($actual);
+        }
+        if ($expected instanceof \Hamcrest\Matcher || $expected instanceof \Hamcrest_Matcher) {
+            return $expected->matches($actual);
+        }
+        return false;
+    }
+
+    /**
+     * Expected argument setter for the expectation
+     *
+     * @param mixed[] ...
+     * @return self
+     */
+    public function with(...$args)
+    {
+        return $this->withArgs($args);
+    }
+
+    /**
+     * Expected arguments for the expectation passed as an array
+     *
+     * @param array $arguments
+     * @return self
+     */
+    private function withArgsInArray(array $arguments)
+    {
+        if (empty($arguments)) {
+            return $this->withNoArgs();
+        }
+        $this->_expectedArgs = $arguments;
+        return $this;
+    }
+
+    /**
+     * Expected arguments have to be matched by the given closure.
+     *
+     * @param Closure $closure
+     * @return self
+     */
+    private function withArgsMatchedByClosure(Closure $closure)
+    {
+        $this->_expectedArgs = [ne

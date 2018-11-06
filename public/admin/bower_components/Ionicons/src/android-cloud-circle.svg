@@ -1,0 +1,24 @@
+
+<?php $__env->startSection('pageTitle'); ?>
+    Product
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('pgSubTitle'); ?>
+    Add Product
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('content'); ?>
+    <!-- Main content -->
+    <section class="content">
+        <!-- Info boxes -->
+        <div class="row">
+            <div class="col-sm-offset-1 col-sm-10">
+                <!-- Horizontal Form -->
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Add New Product</h3>
+                    </div>
+                    <?php if($message = Session::get('message')): ?>
+                        <h3 class="text-center text-success"><?php echo e($message); ?></h3>
+                <?php endif; ?>
+                <!-- /.box-header -->
+                    <!-- form start -->
+                    <fo

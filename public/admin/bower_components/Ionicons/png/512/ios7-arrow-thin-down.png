@@ -1,0 +1,57 @@
+     **
+	     > Usage
+	     | var st = paper.set();
+	     | st.push(
+	     |     paper.circle(10, 10, 5),
+	     |     paper.circle(30, 10, 5)
+	     | );
+	     | st.attr({fill: "red"}); // changes the fill of both circles
+	    \*/
+	    paperproto.set = function (itemsArray) {
+	        !R.is(itemsArray, "array") && (itemsArray = Array.prototype.splice.call(arguments, 0, arguments.length));
+	        var out = new Set(itemsArray);
+	        this.__set__ && this.__set__.push(out);
+	        out["paper"] = this;
+	        out["type"] = "set";
+	        return out;
+	    };
+	    /*\
+	     * Paper.setStart
+	     [ method ]
+	     **
+	     * Creates @Paper.set. All elements that will be created after calling this method and before calling
+	     * @Paper.setFinish will be added to the set.
+	     **
+	     > Usage
+	     | paper.setStart();
+	     | paper.circle(10, 10, 5),
+	     | paper.circle(30, 10, 5)
+	     | var st = paper.setFinish();
+	     | st.attr({fill: "red"}); // changes the fill of both circles
+	    \*/
+	    paperproto.setStart = function (set) {
+	        this.__set__ = set || this.set();
+	    };
+	    /*\
+	     * Paper.setFinish
+	     [ method ]
+	     **
+	     * See @Paper.setStart. This method finishes catching and returns resulting set.
+	     **
+	     = (object) set
+	    \*/
+	    paperproto.setFinish = function (set) {
+	        var out = this.__set__;
+	        delete this.__set__;
+	        return out;
+	    };
+	    /*\
+	     * Paper.getSize
+	     [ method ]
+	     **
+	     * Obtains current paper actual size.
+	     **
+	     = (object)
+	     \*/
+	    paperproto.getSize = function () {
+	        var container = thi

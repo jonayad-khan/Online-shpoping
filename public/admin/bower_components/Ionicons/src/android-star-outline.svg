@@ -1,0 +1,34 @@
+/*!
+ * iCheck v1.0.1, http://git.io/arlzeA
+ * =================================
+ * Powerful jQuery and Zepto plugin for checkboxes and radio buttons customization
+ *
+ * (c) 2013 Damir Sultanov, http://fronteed.com
+ * MIT Licensed
+ */
+
+(function($) {
+
+  // Cached vars
+  var _iCheck = 'iCheck',
+    _iCheckHelper = _iCheck + '-helper',
+    _checkbox = 'checkbox',
+    _radio = 'radio',
+    _checked = 'checked',
+    _unchecked = 'un' + _checked,
+    _disabled = 'disabled',
+    _determinate = 'determinate',
+    _indeterminate = 'in' + _determinate,
+    _update = 'update',
+    _type = 'type',
+    _click = 'click',
+    _touch = 'touchbegin.i touchend.i',
+    _add = 'addClass',
+    _remove = 'removeClass',
+    _callback = 'trigger',
+    _label = 'label',
+    _cursor = 'cursor',
+    _mobile = /ipad|iphone|ipod|android|blackberry|windows phone|opera mini|silk/i.test(navigator.userAgent);
+
+  // Plugin init
+  $.fn[_iCheck] = function(

@@ -1,0 +1,61 @@
+<?php
+
+/*
+ * This file is part of Psy Shell.
+ *
+ * (c) 2012-2017 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Psy\Command;
+
+use Psy\Context;
+use Psy\ContextAware;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+
+class EditCommand extends Command implements ContextAware
+{
+    /**
+     * @var string
+     */
+    private $runtimeDir = '';
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * Constructor.
+     *
+     * @param string      $runtimeDir The directory to use for temporary files
+     * @param string|null $name       The name of the command; passing null means it must be set in configure()
+     *
+     * @throws \Symfony\Component\Console\Exception\LogicException When the command name is empty
+     */
+    public function __construct($runtimeDir, $name = null)
+    {
+        parent::__construct($name);
+
+        $this->runtimeDir = $runtimeDir;
+    }
+
+    protected function configure()
+    {
+        $this
+            ->setName('edit')
+            ->setDefinition(array(
+                new InputArgument('file', InputArgument::OPTIONAL, 'The file to open for editing. If this is not given, edits a temporary file.', null),
+                new InputOption(
+                    'exec',
+                    'e',
+                    InputOption::VALUE_NONE,
+                    'Execute the file content after editing. This is the default when a file name argument is not given.',
+                    null
+                ),
+        

@@ -1,0 +1,34 @@
+<?php
+
+namespace Illuminate\Contracts\Routing;
+
+interface ResponseFactory
+{
+    /**
+     * Return a new response from the application.
+     *
+     * @param  string  $content
+     * @param  int  $status
+     * @param  array  $headers
+     * @return \Illuminate\Http\Response
+     */
+    public function make($content = '', $status = 200, array $headers = []);
+
+    /**
+     * Return a new view response from the application.
+     *
+     * @param  string  $view
+     * @param  array  $data
+     * @param  int  $status
+     * @param  array  $headers
+     * @return \Illuminate\Http\Response
+     */
+    public function view($view, $data = [], $status = 200, array $headers = []);
+
+    /**
+     * Return a new JSON response from the application.
+     *
+     * @param  string|array  $data
+     * @param  int  $status
+     * @param  array  $headers
+     * @param  int  $options

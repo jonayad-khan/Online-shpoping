@@ -1,0 +1,116 @@
+space if not in yet
+
+                        $subset = $this->stringSubsets[$fontName];
+                        sort($subset);
+
+                        // Load font
+                        $font_obj = Font::load($fbfile);
+                        $font_obj->parse();
+
+                        // Define subset
+                        $font_obj->setSubset($subset);
+                        $font_obj->reduce();
+
+                        // Write new font
+                        $tmp_name = "$fbfile.tmp." . uniqid();
+                        $font_obj->open($tmp_name, Font_Binary_Stream::modeWrite);
+                        $font_obj->encode(array("OS/2"));
+                        $font_obj->close();
+
+                        // Parse the new font to get cid2gid and widths
+                        $font_obj = Font::load($tmp_name);
+
+                        // Find Unicode char map table
+                        $subtable = null;
+                        foreach ($font_obj->getData("cmap", "subtables") as $_subtable) {
+                            if ($_subtable["platformID"] == 0 || $_subtable["platformID"] == 3 && $_subtable["platformSpecificID"] == 1) {
+                                $subtable = $_subtable;
+                                break;
+                            }
+                        }
+
+                        if ($subtable) {
+                            $glyphIndexArray = $subtable["glyphIndexArray"];
+                            $hmtx = $font_obj->getData("hmtx");
+
+                            unset($glyphIndexArray[0xFFFF]);
+
+                            $cidtogid = str_pad('', max(array_keys($glyphIndexArray)) * 2 + 1, "\x00");
+                            $font['CIDWidths'] = array();
+                            foreach ($glyphIndexArray as $cid => $gid) {
+                                if ($cid >= 0 && $cid < 0xFFFF && $gid) {
+                                    $cidtogid[$cid * 2] = chr($gid >> 8);
+                                    $cidtogid[$cid * 2 + 1] = chr($gid & 0xFF);
+                                }
+
+                                $width = $font_obj->normalizeFUnit(isset($hmtx[$gid]) ? $hmtx[$gid][0] : $hmtx[0][0]);
+                                $font['CIDWidths'][$cid] = $width;
+                            }
+
+                            $font['CIDtoGID'] = base64_encode(gzcompress($cidtogid));
+                            $font['CIDtoGID_Compressed'] = true;
+
+                            $data = file_get_contents($tmp_name);
+                        } else {
+                            $data = file_get_contents($fbfile);
+                        }
+
+                        $font_obj->close();
+                        unlink($tmp_name);
+                    }
+
+                    // create the font descriptor
+                    $this->numObj++;
+                    $fontDescriptorId = $this->numObj;
+
+                    $this->numObj++;
+                    $pfbid = $this->numObj;
+
+                    // determine flags (more than a little flakey, hopefully will not matter much)
+                    $flags = 0;
+
+                    if ($font['ItalicAngle'] != 0) {
+                        $flags += pow(2, 6);
+                    }
+
+                    if ($font['IsFixedPitch'] === 'true') {
+                        $flags += 1;
+                    }
+
+                    $flags += pow(2, 5); // assume non-sybolic
+                    $list = array(
+                        'Ascent'       => 'Ascender',
+                        'CapHeight'    => 'CapHeight',
+                        'MissingWidth' => 'MissingWidth',
+                        'Descent'      => 'Descender',
+                        'FontBBox'     => 'FontBBox',
+                        'ItalicAngle'  => 'ItalicAngle'
+                    );
+                    $fdopt = array(
+                        'Flags'    => $flags,
+                        'FontName' => $adobeFontName,
+                        'StemV'    => $stemV
+                    );
+
+                    foreach ($list as $k => $v) {
+                        if (isset($font[$v])) {
+                            $fdopt[$k] = $font[$v];
+                        }
+                    }
+
+                    if ($fbtype === 'pfb') {
+                        $fdopt['FontFile'] = $pfbid;
+                    } else {
+                        if ($fbtype === 'ttf') {
+                            $fdopt['FontFile2'] = $pfbid;
+                        }
+                    }
+
+                    $this->o_fontDescriptor($fontDescriptorId, 'new', $fdopt);
+
+                    // embed the font program
+                    $this->o_contents($this->numObj, 'new');
+                    $this->objects[$pfbid]['c'] .= $data;
+
+                    // determine the cruicial lengths within this file
+                    if ($f

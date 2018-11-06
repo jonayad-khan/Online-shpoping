@@ -1,0 +1,241 @@
+{
+                $this->loop = new Loop($this);
+            }
+        }
+
+        return $this->loop;
+    }
+
+    /**
+     * Set the Shell autocompleter service.
+     *
+     * @param AutoCompleter $completer
+     */
+    public function setAutoCompleter(AutoCompleter $completer)
+    {
+        $this->completer = $completer;
+    }
+
+    /**
+     * Get an AutoCompleter service instance.
+     *
+     * @return AutoCompleter
+     */
+    public function getAutoCompleter()
+    {
+        if (!isset($this->completer)) {
+            $this->completer = new AutoCompleter();
+        }
+
+        return $this->completer;
+    }
+
+    /**
+     * Get user specified tab completion matchers for the AutoCompleter.
+     *
+     * @return array
+     */
+    public function getTabCompletionMatchers()
+    {
+        return $this->tabCompletionMatchers;
+    }
+
+    /**
+     * Add additional tab completion matchers to the AutoCompleter.
+     *
+     * @param array $matchers
+     */
+    public function addTabCompletionMatchers(array $matchers)
+    {
+        $this->tabCompletionMatchers = array_merge($this->tabCompletionMatchers, $matchers);
+        if (isset($this->shell)) {
+            $this->shell->addTabCompletionMatchers($this->tabCompletionMatchers);
+        }
+    }
+
+    /**
+     * Add commands to the Shell.
+     *
+     * This will buffer new commands in the event that the Shell has not yet
+     * been instantiated. This allows the user to specify commands in their
+     * config rc file, despite the fact that their file is needed in the Shell
+     * constructor.
+     *
+     * @param array $commands
+     */
+    public function addCommands(array $commands)
+    {
+        $this->newCommands = array_merge($this->newCommands, $commands);
+        if (isset($this->shell)) {
+            $this->doAddCommands();
+        }
+    }
+
+    /**
+     * Internal method for adding commands. This will set any new commands once
+     * a Shell is available.
+     */
+    private function doAddCommands()
+    {
+        if (!empty($this->newCommands)) {
+            $this->shell->addCommands($this->newCommands);
+            $this->newCommands = array();
+        }
+    }
+
+    /**
+     * Set the Shell backreference and add any new commands to the Shell.
+     *
+     * @param Shell $shell
+     */
+    public function setShell(Shell $shell)
+    {
+        $this->shell = $shell;
+        $this->doAddCommands();
+    }
+
+    /**
+     * Set the PHP manual database file.
+     *
+     * This file should be an SQLite database generated from the phpdoc source
+     * with the `bin/build_manual` script.
+     *
+     * @param string $filename
+     */
+    public function setManualDbFile($filename)
+    {
+        $this->manualDbFile = (string) $filename;
+    }
+
+    /**
+     * Get the current PHP manual database file.
+     *
+     * @return string Default: '~/.local/share/psysh/php_manual.sqlite'
+     */
+    public function getManualDbFile()
+    {
+        if (isset($this->manualDbFile)) {
+            return $this->manualDbFile;
+        }
+
+        $files = ConfigPaths::getDataFiles(array('php_manual.sqlite'), $this->dataDir);
+        if (!empty($files)) {
+            if ($this->warnOnMultipleConfigs && count($files) > 1) {
+                $msg = sprintf('Multiple manual database files found: %s. Using %s', implode($files, ', '), $files[0]);
+                trigger_error($msg, E_USER_NOTICE);
+            }
+
+            return $this->manualDbFile = $files[0];
+        }
+    }
+
+    /**
+     * Get a PHP manual database connection.
+     *
+     * @return \PDO
+     */
+    public function getManualDb()
+    {
+        if (!isset($this->manualDb)) {
+            $dbFile = $this->getManualDbFile();
+            if (is_file($dbFile)) {
+                try {
+                    $this->manualDb = new \PDO('sqlite:' . $dbFile);
+                } catch (\PDOException $e) {
+                    if ($e->getMessage() === 'could not find driver') {
+                        throw new RuntimeException('SQLite PDO driver not found', 0, $e);
+                    } else {
+                        throw $e;
+                    }
+                }
+            }
+        }
+
+        return $this->manualDb;
+    }
+
+    /**
+     * Add an array of casters definitions.
+     *
+     * @param array $casters
+     */
+    public function addCasters(array $casters)
+    {
+        $this->getPresenter()->addCasters($casters);
+    }
+
+    /**
+     * Get the Presenter service.
+     *
+     * @return Presenter
+     */
+    public function getPresenter()
+    {
+        if (!isset($this->presenter)) {
+            $this->presenter = new Presenter($this->getOutput()->getFormatter(), $this->forceArrayIndexes());
+        }
+
+        return $this->presenter;
+    }
+
+    /**
+     * Enable or disable warnings on multiple configuration or data files.
+     *
+     * @see self::warnOnMultipleConfigs()
+     *
+     * @param bool $warnOnMultipleConfigs
+     */
+    public function setWarnOnMultipleConfigs($warnOnMultipleConfigs)
+    {
+        $this->warnOnMultipleConfigs = (bool) $warnOnMultipleConfigs;
+    }
+
+    /**
+     * Check whether to warn on multiple configuration or data files.
+     *
+     * By default, PsySH will use the file with highest precedence, and will
+     * silently ignore all others. With this enabled, a warning will be emitted
+     * (but not an exception thrown) if multiple configuration or data files
+     * are found.
+     *
+     * This will default to true in a future release, but is false for now.
+     *
+     * @return bool
+     */
+    public function warnOnMultipleConfigs()
+    {
+        return $this->warnOnMultipleConfigs;
+    }
+
+    /**
+     * Set the current color mode.
+     *
+     * @param string $colorMode
+     */
+    public function setColorMode($colorMode)
+    {
+        $validColorModes = array(
+            self::COLOR_MODE_AUTO,
+            self::COLOR_MODE_FORCED,
+            self::COLOR_MODE_DISABLED,
+        );
+
+        if (in_array($colorMode, $validColorModes)) {
+            $this->colorMode = $colorMode;
+        } else {
+            throw new \InvalidArgumentException('invalid color mode: ' . $colorMode);
+        }
+    }
+
+    /**
+     * Get the current color mode.
+     *
+     * @return string
+     */
+    public function colorMode()
+    {
+        return $this->colorMode;
+    }
+
+    /**
+     * Set an update check

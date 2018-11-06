@@ -1,0 +1,54 @@
+.component === hit1.component &&
+			isHitPropsWithin(hit0, hit1) &&
+			isHitPropsWithin(hit1, hit0); // ensures all props are identical
+	}
+
+	return false;
+}
+
+
+// Returns true if all of subHit's non-standard properties are within superHit
+function isHitPropsWithin(subHit, superHit) {
+	for (var propName in subHit) {
+		if (!/^(component|left|right|top|bottom)$/.test(propName)) {
+			if (subHit[propName] !== superHit[propName]) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+;;
+
+/*
+Listens to document and window-level user-interaction events, like touch events and mouse events,
+and fires these events as-is to whoever is observing a GlobalEmitter.
+Best when used as a singleton via GlobalEmitter.get()
+
+Normalizes mouse/touch events. For examples:
+- ignores the the simulated mouse events that happen after a quick tap: mousemove+mousedown+mouseup+click
+- compensates for various buggy scenarios where a touchend does not fire
+*/
+
+FC.touchMouseIgnoreWait = 500;
+
+var GlobalEmitter = Class.extend(ListenerMixin, EmitterMixin, {
+
+	isTouching: false,
+	mouseIgnoreDepth: 0,
+	handleScrollProxy: null,
+
+
+	bind: function() {
+		var _this = this;
+
+		this.listenTo($(document), {
+			touchstart: this.handleTouchStart,
+			touchcancel: this.handleTouchCancel,
+			touchend: this.handleTouchEnd,
+			mousedown: this.handleMouseDown,
+			mousemove: this.handleMouseMove,
+			mouseup: this.handleMouseUp,
+			click: this.handleClick,
+			selectst

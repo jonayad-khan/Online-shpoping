@@ -1,0 +1,24 @@
+ace();
+            } else {
+                $combinator = ' ';
+            }
+
+            list($nextSelector, $pseudoElement) = $this->parseSimpleSelector($stream);
+            $result = new Node\CombinedSelectorNode($result, $combinator, $nextSelector);
+        }
+
+        return new Node\SelectorNode($result, $pseudoElement);
+    }
+
+    /**
+     * Parses next simple node (hash, class, pseudo, negation).
+     *
+     * @param TokenStream $stream
+     * @param bool        $insideNegation
+     *
+     * @return array
+     *
+     * @throws SyntaxErrorException
+     */
+    private function parseSimpleSelector(TokenStream $stream, $insideNegation = false)
+    

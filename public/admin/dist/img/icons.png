@@ -1,0 +1,50 @@
+     $container = self::$_container;
+        self::$_container = null;
+
+        $container->mockery_teardown();
+        $container->mockery_close();
+    }
+
+    /**
+     * Static fetching of a mock associated with a name or explicit class poser.
+     *
+     * @param $name
+     *
+     * @return \Mockery\Mock
+     */
+    public static function fetchMock($name)
+    {
+        return self::$_container->fetchMock($name);
+    }
+
+    /**
+     * Lazy loader and getter for
+     * the container property.
+     *
+     * @return Mockery\Container
+     */
+    public static function getContainer()
+    {
+        if (is_null(self::$_container)) {
+            self::$_container = new Mockery\Container(self::getGenerator(), self::getLoader());
+        }
+
+        return self::$_container;
+    }
+
+    /**
+     * Setter for the $_generator static propery.
+     *
+     * @param \Mockery\Generator\Generator $generator
+     */
+    public static function setGenerator(Generator $generator)
+    {
+        self::$_generator = $generator;
+    }
+
+    /**
+     * Lazy loader method and getter for
+     * the generator property.
+     *
+     * @return Generator
+    

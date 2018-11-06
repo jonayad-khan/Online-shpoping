@@ -1,0 +1,164 @@
+ember
+     * @return void
+     */
+    protected function fireLoginEvent($user, $remember = false)
+    {
+        if (isset($this->events)) {
+            $this->events->dispatch(new Events\Login($user, $remember));
+        }
+    }
+
+    /**
+     * Fire the authenticated event if the dispatcher is set.
+     *
+     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @return void
+     */
+    protected function fireAuthenticatedEvent($user)
+    {
+        if (isset($this->events)) {
+            $this->events->dispatch(new Events\Authenticated($user));
+        }
+    }
+
+    /**
+     * Fire the failed authentication attempt event with the given arguments.
+     *
+     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $user
+     * @param  array  $credentials
+     * @return void
+     */
+    protected function fireFailedEvent($user, array $credentials)
+    {
+        if (isset($this->events)) {
+            $this->events->dispatch(new Events\Failed($user, $credentials));
+        }
+    }
+
+    /**
+     * Get the last user we attempted to authenticate.
+     *
+     * @return \Illuminate\Contracts\Auth\Authenticatable
+     */
+    public function getLastAttempted()
+    {
+        return $this->lastAttempted;
+    }
+
+    /**
+     * Get a unique identifier for the auth session value.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return 'login_'.$this->name.'_'.sha1(static::class);
+    }
+
+    /**
+     * Get the name of the cookie used to store the "recaller".
+     *
+     * @return string
+     */
+    public function getRecallerName()
+    {
+        return 'remember_'.$this->name.'_'.sha1(static::class);
+    }
+
+    /**
+     * Determine if the user was authenticated via "remember me" cookie.
+     *
+     * @return bool
+     */
+    public function viaRemember()
+    {
+        return $this->viaRemember;
+    }
+
+    /**
+     * Get the cookie creator instance used by the guard.
+     *
+     * @return \Illuminate\Contracts\Cookie\QueueingFactory
+     *
+     * @throws \RuntimeException
+     */
+    public function getCookieJar()
+    {
+        if (! isset($this->cookie)) {
+            throw new RuntimeException('Cookie jar has not been set.');
+        }
+
+        return $this->cookie;
+    }
+
+    /**
+     * Set the cookie creator instance used by the guard.
+     *
+     * @param  \Illuminate\Contracts\Cookie\QueueingFactory  $cookie
+     * @return void
+     */
+    public function setCookieJar(CookieJar $cookie)
+    {
+        $this->cookie = $cookie;
+    }
+
+    /**
+     * Get the event dispatcher instance.
+     *
+     * @return \Illuminate\Contracts\Events\Dispatcher
+     */
+    public function getDispatcher()
+    {
+        return $this->events;
+    }
+
+    /**
+     * Set the event dispatcher instance.
+     *
+     * @param  \Illuminate\Contracts\Events\Dispatcher  $events
+     * @return void
+     */
+    public function setDispatcher(Dispatcher $events)
+    {
+        $this->events = $events;
+    }
+
+    /**
+     * Get the session store used by the guard.
+     *
+     * @return \Illuminate\Contracts\Session\Session.
+     */
+    public function getSession()
+    {
+        return $this->session;
+    }
+
+    /**
+     * Return the currently cached user.
+     *
+     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set the current user.
+     *
+     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @return $this
+     */
+    public function setUser(AuthenticatableContract $user)
+    {
+        $this->user = $user;
+
+        $this->loggedOut = false;
+
+        $this->fireAuthenticatedEvent($user);
+
+        return $this;
+    }
+
+    /**
+     * Get the current request in

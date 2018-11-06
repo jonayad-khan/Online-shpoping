@@ -1,0 +1,30 @@
+   * @param  string    $name
+     * @param  \Closure  $callback
+     * @return void
+     */
+    protected function addEventListener($name, $callback)
+    {
+        if (Str::contains($name, '*')) {
+            $callback = function ($name, array $data) use ($callback) {
+                return $callback($data[0]);
+            };
+        }
+
+        $this->events->listen($name, $callback);
+    }
+
+    /**
+     * Call the composer for a given view.
+     *
+     * @param  \Illuminate\Contracts\View\View  $view
+     * @return void
+     */
+    public function callComposer(ViewContract $view)
+    {
+        $this->events->dispatch('composing: '.$view->name(), [$view]);
+    }
+
+    /**
+     * Call the creator for a given view.
+     *
+     * @p

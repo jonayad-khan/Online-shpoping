@@ -1,0 +1,29 @@
+ i >= 0; --i) {
+                if (!seriesFilter(series[i]))
+                    continue;
+
+                var s = series[i],
+                    axisx = s.xaxis,
+                    axisy = s.yaxis,
+                    points = s.datapoints.points,
+                    mx = axisx.c2p(mouseX), // precompute some stuff to make the loop faster
+                    my = axisy.c2p(mouseY),
+                    maxx = maxDistance / axisx.scale,
+                    maxy = maxDistance / axisy.scale;
+
+                ps = s.datapoints.pointsize;
+                // with inverse transforms, we can't use the maxx/maxy
+                // optimization, sadly
+                if (axisx.options.inverseTransform)
+                    maxx = Number.MAX_VALUE;
+                if (axisy.options.inverseTransform)
+                    maxy = Number.MAX_VALUE;
+
+                if (s.lines.show || s.points.show) {
+                    for (j = 0; j < points.length; j += ps) {
+                        var x = points[j], y = points[j + 1];
+                        if (x == null)
+                            continue;
+
+                        // For points and lines, the cursor must be within a
+                 

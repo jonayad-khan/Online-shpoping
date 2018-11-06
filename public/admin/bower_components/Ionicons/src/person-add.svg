@@ -1,0 +1,30 @@
+sciiReaders()
+    {
+        foreach (array('iscii', 'ISCII', 'viscii', 'VISCII') as $charset) {
+            $reader = $this->factory->getReaderFor($charset);
+            $this->assertInstanceOf($this->prefix.'GenericFixedWidthReader', $reader);
+            $this->assertEquals(1, $reader->getInitialByteSize());
+        }
+    }
+
+    public function testCreatingMIKReader()
+    {
+        foreach (array('mik', 'MIK') as $charset) {
+            $reader = $this->factory->getReaderFor($charset);
+            $this->assertInstanceOf($this->prefix.'GenericFixedWidthReader', $reader);
+            $this->assertEquals(1, $reader->getInitialByteSize());
+        }
+    }
+
+    public function testCreatingCorkReader()
+    {
+        foreach (array('cork', 'CORK', 't1', 'T1') as $charset) {
+            $reader = $this->factory->getReaderFor($charset);
+            $this->assertInstanceOf($this->prefix.'GenericFixedWidthReader', $reader);
+            $this->assertEquals(1, $reader->getInitialByteSize());
+        }
+    }
+
+    public function testCreatingUcs2Reader()
+    {
+        foreach (array('

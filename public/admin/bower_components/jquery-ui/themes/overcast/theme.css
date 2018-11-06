@@ -1,0 +1,710 @@
+Error::class);
+
+        $this->assertXmlStringNotEqualsXmlFile(
+            $this->filesDirectory . 'foo.xml',
+            \file_get_contents($this->filesDirectory . 'foo.xml')
+        );
+    }
+
+    public function testAssertXmlStringEqualsXmlString()
+    {
+        $this->assertXmlStringEqualsXmlString('<root/>', '<root/>');
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertXmlStringEqualsXmlString('<foo/>', '<bar/>');
+    }
+
+    /**
+     * @ticket 1860
+     */
+    public function testAssertXmlStringEqualsXmlString2()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertXmlStringEqualsXmlString('<a></b>', '<c></d>');
+    }
+
+    /**
+     * @ticket 1860
+     */
+    public function testAssertXmlStringEqualsXmlString3()
+    {
+        $expected = <<<XML
+<?xml version="1.0"?>
+<root>
+    <node />
+</root>
+XML;
+
+        $actual = <<<XML
+<?xml version="1.0"?>
+<root>
+<node />
+</root>
+XML;
+
+        $this->assertXmlStringEqualsXmlString($expected, $actual);
+    }
+
+    public function testAssertXmlStringNotEqualsXmlString()
+    {
+        $this->assertXmlStringNotEqualsXmlString('<foo/>', '<bar/>');
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertXmlStringNotEqualsXmlString('<root/>', '<root/>');
+    }
+
+    public function testXMLStructureIsSame()
+    {
+        $expected = new \DOMDocument;
+        $expected->load($this->filesDirectory . 'structureExpected.xml');
+
+        $actual = new \DOMDocument;
+        $actual->load($this->filesDirectory . 'structureExpected.xml');
+
+        $this->assertEqualXMLStructure(
+            $expected->firstChild,
+            $actual->firstChild,
+            true
+        );
+    }
+
+    public function testXMLStructureWrongNumberOfAttributes()
+    {
+        $expected = new \DOMDocument;
+        $expected->load($this->filesDirectory . 'structureExpected.xml');
+
+        $actual = new \DOMDocument;
+        $actual->load($this->filesDirectory . 'structureWrongNumberOfAttributes.xml');
+
+        $this->expectException(ExpectationFailedException::class);
+
+        $this->assertEqualXMLStructure(
+            $expected->firstChild,
+            $actual->firstChild,
+            true
+        );
+    }
+
+    public function testXMLStructureWrongNumberOfNodes()
+    {
+        $expected = new \DOMDocument;
+        $expected->load($this->filesDirectory . 'structureExpected.xml');
+
+        $actual = new \DOMDocument;
+        $actual->load($this->filesDirectory . 'structureWrongNumberOfNodes.xml');
+
+        $this->expectException(ExpectationFailedException::class);
+
+        $this->assertEqualXMLStructure(
+            $expected->firstChild,
+            $actual->firstChild,
+            true
+        );
+    }
+
+    public function testXMLStructureIsSameButDataIsNot()
+    {
+        $expected = new \DOMDocument;
+        $expected->load($this->filesDirectory . 'structureExpected.xml');
+
+        $actual = new \DOMDocument;
+        $actual->load($this->filesDirectory . 'structureIsSameButDataIsNot.xml');
+
+        $this->assertEqualXMLStructure(
+            $expected->firstChild,
+            $actual->firstChild,
+            true
+        );
+    }
+
+    public function testXMLStructureAttributesAreSameButValuesAreNot()
+    {
+        $expected = new \DOMDocument;
+        $expected->load($this->filesDirectory . 'structureExpected.xml');
+
+        $actual = new \DOMDocument;
+        $actual->load($this->filesDirectory . 'structureAttributesAreSameButValuesAreNot.xml');
+
+        $this->assertEqualXMLStructure(
+            $expected->firstChild,
+            $actual->firstChild,
+            true
+        );
+    }
+
+    public function testXMLStructureIgnoreTextNodes()
+    {
+        $expected = new \DOMDocument;
+        $expected->load($this->filesDirectory . 'structureExpected.xml');
+
+        $actual = new \DOMDocument;
+        $actual->load($this->filesDirectory . 'structureIgnoreTextNodes.xml');
+
+        $this->assertEqualXMLStructure(
+            $expected->firstChild,
+            $actual->firstChild,
+            true
+        );
+    }
+
+    public function testAssertStringEqualsNumeric()
+    {
+        $this->assertEquals('0', 0);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertEquals('0', 1);
+    }
+
+    public function testAssertStringEqualsNumeric2()
+    {
+        $this->assertNotEquals('A', 0);
+    }
+
+    public function testAssertIsReadableThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertIsReadable(null);
+    }
+
+    public function testAssertIsReadable()
+    {
+        $this->assertIsReadable(__FILE__);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertIsReadable(__DIR__ . DIRECTORY_SEPARATOR . 'NotExisting');
+    }
+
+    public function testAssertNotIsReadableThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertNotIsReadable(null);
+    }
+
+    public function testAssertNotIsReadable()
+    {
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertNotIsReadable(__FILE__);
+    }
+
+    public function testAssertIsWritableThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertIsWritable(null);
+    }
+
+    public function testAssertIsWritable()
+    {
+        $this->assertIsWritable(__FILE__);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertIsWritable(__DIR__ . DIRECTORY_SEPARATOR . 'NotExisting');
+    }
+
+    public function testAssertNotIsWritableThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertNotIsWritable(null);
+    }
+
+    public function testAssertNotIsWritable()
+    {
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertNotIsWritable(__FILE__);
+    }
+
+    public function testAssertDirectoryExistsThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertDirectoryExists(null);
+    }
+
+    public function testAssertDirectoryExists()
+    {
+        $this->assertDirectoryExists(__DIR__);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertDirectoryExists(__DIR__ . DIRECTORY_SEPARATOR . 'NotExisting');
+    }
+
+    public function testAssertDirectoryNotExistsThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertDirectoryNotExists(null);
+    }
+
+    public function testAssertDirectoryNotExists()
+    {
+        $this->assertDirectoryNotExists(__DIR__ . DIRECTORY_SEPARATOR . 'NotExisting');
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertDirectoryNotExists(__DIR__);
+    }
+
+    public function testAssertDirectoryIsReadableThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertDirectoryIsReadable(null);
+    }
+
+    public function testAssertDirectoryIsReadable()
+    {
+        $this->assertDirectoryIsReadable(__DIR__);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertDirectoryIsReadable(__DIR__ . DIRECTORY_SEPARATOR . 'NotExisting');
+    }
+
+    public function testAssertDirectoryNotIsReadableThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertDirectoryNotIsReadable(null);
+    }
+
+    public function testAssertDirectoryIsWritableThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertDirectoryIsWritable(null);
+    }
+
+    public function testAssertDirectoryIsWritable()
+    {
+        $this->assertDirectoryIsWritable(__DIR__);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertDirectoryIsWritable(__DIR__ . DIRECTORY_SEPARATOR . 'NotExisting');
+    }
+
+    public function testAssertDirectoryNotIsWritableThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertDirectoryNotIsWritable(null);
+    }
+
+    public function testAssertFileExistsThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertFileExists(null);
+    }
+
+    public function testAssertFileExists()
+    {
+        $this->assertFileExists(__FILE__);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertFileExists(__DIR__ . DIRECTORY_SEPARATOR . 'NotExisting');
+    }
+
+    public function testAssertFileNotExistsThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertFileNotExists(null);
+    }
+
+    public function testAssertFileNotExists()
+    {
+        $this->assertFileNotExists(__DIR__ . DIRECTORY_SEPARATOR . 'NotExisting');
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertFileNotExists(__FILE__);
+    }
+
+    public function testAssertFileIsReadableThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertFileIsReadable(null);
+    }
+
+    public function testAssertFileIsReadable()
+    {
+        $this->assertFileIsReadable(__FILE__);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertFileIsReadable(__DIR__ . DIRECTORY_SEPARATOR . 'NotExisting');
+    }
+
+    public function testAssertFileNotIsReadableThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertFileNotIsReadable(null);
+    }
+
+    public function testAssertFileIsWritableThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertFileIsWritable(null);
+    }
+
+    public function testAssertFileIsWritable()
+    {
+        $this->assertFileIsWritable(__FILE__);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertFileIsWritable(__DIR__ . DIRECTORY_SEPARATOR . 'NotExisting');
+    }
+
+    public function testAssertFileNotIsWritableThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertFileNotIsWritable(null);
+    }
+
+    public function testAssertObjectHasAttribute()
+    {
+        $o = new \Author('Terry Pratchett');
+
+        $this->assertObjectHasAttribute('name', $o);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertObjectHasAttribute('foo', $o);
+    }
+
+    public function testAssertObjectNotHasAttribute()
+    {
+        $o = new \Author('Terry Pratchett');
+
+        $this->assertObjectNotHasAttribute('foo', $o);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertObjectNotHasAttribute('name', $o);
+    }
+
+    public function testAssertFinite()
+    {
+        $this->assertFinite(1);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertFinite(INF);
+    }
+
+    public function testAssertInfinite()
+    {
+        $this->assertInfinite(INF);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertInfinite(1);
+    }
+
+    public function testAssertNan()
+    {
+        $this->assertNan(NAN);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertNan(1);
+    }
+
+    public function testAssertNull()
+    {
+        $this->assertNull(null);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertNull(new \stdClass);
+    }
+
+    public function testAssertNotNull()
+    {
+        $this->assertNotNull(new \stdClass);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertNotNull(null);
+    }
+
+    public function testAssertTrue()
+    {
+        $this->assertTrue(true);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertTrue(false);
+    }
+
+    public function testAssertNotTrue()
+    {
+        $this->assertNotTrue(false);
+        $this->assertNotTrue(1);
+        $this->assertNotTrue('true');
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertNotTrue(true);
+    }
+
+    public function testAssertFalse()
+    {
+        $this->assertFalse(false);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertFalse(true);
+    }
+
+    public function testAssertNotFalse()
+    {
+        $this->assertNotFalse(true);
+        $this->assertNotFalse(0);
+        $this->assertNotFalse('');
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertNotFalse(false);
+    }
+
+    public function testAssertRegExpThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertRegExp(null, null);
+    }
+
+    public function testAssertRegExpThrowsException2()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertRegExp('', null);
+    }
+
+    public function testAssertNotRegExpThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertNotRegExp(null, null);
+    }
+
+    public function testAssertNotRegExpThrowsException2()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertNotRegExp('', null);
+    }
+
+    public function testAssertRegExp()
+    {
+        $this->assertRegExp('/foo/', 'foobar');
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertRegExp('/foo/', 'bar');
+    }
+
+    public function testAssertNotRegExp()
+    {
+        $this->assertNotRegExp('/foo/', 'bar');
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertNotRegExp('/foo/', 'foobar');
+    }
+
+    public function testAssertSame()
+    {
+        $o = new \stdClass;
+
+        $this->assertSame($o, $o);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertSame(new \stdClass, new \stdClass);
+    }
+
+    public function testAssertSame2()
+    {
+        $this->assertSame(true, true);
+        $this->assertSame(false, false);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertSame(true, false);
+    }
+
+    public function testAssertNotSame()
+    {
+        $this->assertNotSame(
+            new \stdClass,
+            null
+        );
+
+        $this->assertNotSame(
+            null,
+            new \stdClass
+        );
+
+        $this->assertNotSame(
+            new \stdClass,
+            new \stdClass
+        );
+
+        $o = new \stdClass;
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertNotSame($o, $o);
+    }
+
+    public function testAssertNotSame2()
+    {
+        $this->assertNotSame(true, false);
+        $this->assertNotSame(false, true);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertNotSame(true, true);
+    }
+
+    public function testAssertNotSameFailsNull()
+    {
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertNotSame(null, null);
+    }
+
+    public function testGreaterThan()
+    {
+        $this->assertGreaterThan(1, 2);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertGreaterThan(2, 1);
+    }
+
+    public function testAttributeGreaterThan()
+    {
+        $this->assertAttributeGreaterThan(
+            1,
+            'bar',
+            new \ClassWithNonPublicAttributes
+        );
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertAttributeGreaterThan(
+            1,
+            'foo',
+            new \ClassWithNonPublicAttributes
+        );
+    }
+
+    public function testGreaterThanOrEqual()
+    {
+        $this->assertGreaterThanOrEqual(1, 2);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertGreaterThanOrEqual(2, 1);
+    }
+
+    public function testAttributeGreaterThanOrEqual()
+    {
+        $this->assertAttributeGreaterThanOrEqual(
+            1,
+            'bar',
+            new \ClassWithNonPublicAttributes
+        );
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertAttributeGreaterThanOrEqual(
+            2,
+            'foo',
+            new \ClassWithNonPublicAttributes
+        );
+    }
+
+    public function testLessThan()
+    {
+        $this->assertLessThan(2, 1);
+
+        try {
+            $this->assertLessThan(1, 2);
+        } catch (AssertionFailedError $e) {
+            return;
+        }
+
+        $this->fail();
+    }
+
+    public function testAttributeLessThan()
+    {
+        $this->assertAttributeLessThan(
+            2,
+            'foo',
+            new \ClassWithNonPublicAttributes
+        );
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertAttributeLessThan(
+            1,
+            'bar',
+            new \ClassWithNonPublicAttributes
+        );
+    }
+
+    public function testLessThanOrEqual()
+    {
+        $this->assertLessThanOrEqual(2, 1);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertLessThanOrEqual(1, 2);
+    }
+
+    public function testAttributeLessThanOrEqual()
+    {
+        $this->assertAttributeLessThanOrEqual(
+            2,
+            'foo',
+            new \ClassWithNonPublicAttributes
+        );
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertAttributeLessThanOrEqual(
+            1,
+            'bar',
+            new \ClassWithNonPublicAttributes
+        );
+    }
+
+    public function testReadAttribute()
+    {
+        $obj = new \ClassWithNonPublicAttributes;
+
+     

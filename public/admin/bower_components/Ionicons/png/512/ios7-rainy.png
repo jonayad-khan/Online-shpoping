@@ -1,0 +1,81 @@
+ribute('foo', null);
+    }
+
+    public function testAssertObjectNotHasAttributeThrowsExceptionIfAttributeNameIsNotValid()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertObjectNotHasAttribute('1', \ClassWithNonPublicAttributes::class);
+    }
+
+    public function testClassHasPublicAttribute()
+    {
+        $this->assertClassHasAttribute('publicAttribute', \ClassWithNonPublicAttributes::class);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertClassHasAttribute('attribute', \ClassWithNonPublicAttributes::class);
+    }
+
+    public function testClassNotHasPublicAttribute()
+    {
+        $this->assertClassNotHasAttribute('attribute', \ClassWithNonPublicAttributes::class);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertClassNotHasAttribute('publicAttribute', \ClassWithNonPublicAttributes::class);
+    }
+
+    public function testClassHasPublicStaticAttribute()
+    {
+        $this->assertClassHasStaticAttribute('publicStaticAttribute', \ClassWithNonPublicAttributes::class);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertClassHasStaticAttribute('attribute', \ClassWithNonPublicAttributes::class);
+    }
+
+    public function testClassNotHasPublicStaticAttribute()
+    {
+        $this->assertClassNotHasStaticAttribute('attribute', \ClassWithNonPublicAttributes::class);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertClassNotHasStaticAttribute('publicStaticAttribute', \ClassWithNonPublicAttributes::class);
+    }
+
+    public function testObjectHasPublicAttribute()
+    {
+        $obj = new \ClassWithNonPublicAttributes;
+
+        $this->assertObjectHasAttribute('publicAttribute', $obj);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertObjectHasAttribute('attribute', $obj);
+    }
+
+    public function testObjectNotHasPublicAttribute()
+    {
+        $obj = new \ClassWithNonPublicAttributes;
+
+        $this->assertObjectNotHasAttribute('attribute', $obj);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertObjectNotHasAttribute('publicAttribute', $obj);
+    }
+
+    public function testObjectHasOnTheFlyAttribute()
+    {
+        $obj      = new \stdClass;
+        $obj->foo = 'bar';
+
+        $this->assertObjectHasAttribute('foo', $obj);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertObjectHasAttribute('bar', $obj);
+    }
+
+    public function testObjectNotHasOnTheFlyAttribute()

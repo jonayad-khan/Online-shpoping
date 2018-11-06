@@ -1,0 +1,43 @@
+alidationData::extractDataFromPath($explicitPath, $this->data);
+
+        $otherValues = Arr::where(Arr::dot($attributeData), function ($value, $key) use ($parameters) {
+            return Str::is($parameters[0], $key);
+        });
+
+        return in_array($value, $otherValues);
+    }
+
+    /**
+     * Validate that an attribute is an integer.
+     *
+     * @param  string  $attribute
+     * @param  mixed   $value
+     * @return bool
+     */
+    public function validateInteger($attribute, $value)
+    {
+        return filter_var($value, FILTER_VALIDATE_INT) !== false;
+    }
+
+    /**
+     * Validate that an attribute is a valid IP.
+     *
+     * @param  string  $attribute
+     * @param  mixed   $value
+     * @return bool
+     */
+    public function validateIp($attribute, $value)
+    {
+        return filter_var($value, FILTER_VALIDATE_IP) !== false;
+    }
+
+    /**
+     * Validate that an attribute is a valid IPv4.
+     *
+     * @param  string  $attribute
+     * @param  mixed   $value
+     * @return bool
+     */
+    public function validateIpv4($attribute, $value)
+    {
+        return filter_var($value, FILTER_VALIDATE_IP, FILTER_

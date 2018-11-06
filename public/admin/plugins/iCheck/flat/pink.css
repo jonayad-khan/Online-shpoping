@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>JavaScript Basic</title>
+    </head>
+
+<style>
+	.main-div{
+		width : 350px;
+		height : 250px;
+		border : 1px solid black;
+	}
+</style>
+
+	
+    <body>
+		<button type="button" id="blackbtn">Black</button>
+		<button type="button" id="redbtn">Red</button>
+		<button type="button" id="greenbtn">Green</button>
+		<button type="button" id="defaultbtn">Default</button>
+		
+		<div class="main-div" id="mainDiv">
+		</div>
+		
+    </body>
+	
+	<script>
+		var blackbtn = document.getElementById('blackbtn');
+		blackbtn.onclick = function(){
+			var mainDiv = document.getElementById('mainDiv');
+			mainDiv.style.backgroundColor = 'black';
+			mainDiv.style.height = '350px';
+			mainDiv.style.width = '450px';
+		}
+		
+		var redbtn = document.getElementById('redbtn');
+		redbtn.onclick = function(){
+			var mainDiv = document.getElementById('mainDiv');
+			mainDiv.style.backgroundColor = 'red';
+			mainDiv.style.height = '450px';
+			mainDiv.style.width = '550px';
+		}
+		
+		var greenbtn = document.getElementById('greenbtn');
+		greenbtn.onclick = function(){
+			var mainDiv = document.getElementById('mainDiv');
+			mainDiv.style.backgroundColor = 'green';
+			mainDiv.style.height = '350px';
+			mainDiv.style.width = '450px';
+		}
+		
+		var blackbtn = document.getElementById('defaultbtn');
+		blackbtn.onclick = 

@@ -1,0 +1,54 @@
+Exclusion
+     *
+     * @param string $mode    the blend mode to use
+     * @param float  $opacity 0.0 fully transparent, 1.0 fully opaque
+     */
+    function setLineTransparency($mode, $opacity)
+    {
+        static $blend_modes = array(
+            "Normal",
+            "Multiply",
+            "Screen",
+            "Overlay",
+            "Darken",
+            "Lighten",
+            "ColorDogde",
+            "ColorBurn",
+            "HardLight",
+            "SoftLight",
+            "Difference",
+            "Exclusion"
+        );
+
+        if (!in_array($mode, $blend_modes)) {
+            $mode = "Normal";
+        }
+
+        // Only create a new graphics state if required
+        if ($mode === $this->currentLineTransparency["mode"] &&
+            $opacity == $this->currentLineTransparency["opacity"]
+        ) {
+            return;
+        }
+
+        $this->currentLineTransparency["mode"] = $mode;
+        $this->currentLineTransparency["opacity"] = $opacity;
+
+        $options = array(
+            "BM" => "/$mode",
+            "CA" => (float)$opacity
+        );
+
+        $this->setGraphicsState($options);
+    }
+
+    /**
+     * Set current blend mode & opacity for filled objects.
+     *
+     * Valid blend modes are:
+     *
+     * Normal, Multiply, Screen, Overlay, Darken, Lighten,
+     * ColorDogde, ColorBurn, HardLight, SoftLight, Difference,
+     * Exclusion
+     *
+     * @param string $mode    the blend mode 

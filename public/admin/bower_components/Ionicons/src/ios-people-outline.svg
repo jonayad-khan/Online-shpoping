@@ -1,0 +1,171 @@
+function testAssertStringEndsNotWithThrowsException2()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertStringEndsNotWith('', null);
+    }
+
+    public function testAssertStringStartsWith()
+    {
+        $this->assertStringStartsWith('prefix', 'prefixfoo');
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertStringStartsWith('prefix', 'foo');
+    }
+
+    public function testAssertStringStartsNotWith()
+    {
+        $this->assertStringStartsNotWith('prefix', 'foo');
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertStringStartsNotWith('prefix', 'prefixfoo');
+    }
+
+    public function testAssertStringEndsWith()
+    {
+        $this->assertStringEndsWith('suffix', 'foosuffix');
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertStringEndsWith('suffix', 'foo');
+    }
+
+    public function testAssertStringEndsNotWith()
+    {
+        $this->assertStringEndsNotWith('suffix', 'foo');
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertStringEndsNotWith('suffix', 'foosuffix');
+    }
+
+    public function testAssertStringMatchesFormatRaisesExceptionForInvalidFirstArgument()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertStringMatchesFormat(null, '');
+    }
+
+    public function testAssertStringMatchesFormatRaisesExceptionForInvalidSecondArgument()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertStringMatchesFormat('', null);
+    }
+
+    public function testAssertStringMatchesFormat()
+    {
+        $this->assertStringMatchesFormat('*%s*', '***');
+    }
+
+    public function testAssertStringMatchesFormatFailure()
+    {
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertStringMatchesFormat('*%s*', '**');
+    }
+
+    public function testAssertStringNotMatchesFormatRaisesExceptionForInvalidFirstArgument()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertStringNotMatchesFormat(null, '');
+    }
+
+    public function testAssertStringNotMatchesFormatRaisesExceptionForInvalidSecondArgument()
+    {
+        $this->expectException(Exception::class);
+
+        $this->assertStringNotMatchesFormat('', null);
+    }
+
+    public function testAssertStringNotMatchesFormat()
+    {
+        $this->assertStringNotMatchesFormat('*%s*', '**');
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertStringMatchesFormat('*%s*', '**');
+    }
+
+    public function testAssertEmpty()
+    {
+        $this->assertEmpty([]);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertEmpty(['foo']);
+    }
+
+    public function testAssertNotEmpty()
+    {
+        $this->assertNotEmpty(['foo']);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertNotEmpty([]);
+    }
+
+    public function testAssertAttributeEmpty()
+    {
+        $o    = new \stdClass;
+        $o->a = [];
+
+        $this->assertAttributeEmpty('a', $o);
+
+        $o->a = ['b'];
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertAttributeEmpty('a', $o);
+    }
+
+    public function testAssertAttributeNotEmpty()
+    {
+        $o    = new \stdClass;
+        $o->a = ['b'];
+
+        $this->assertAttributeNotEmpty('a', $o);
+
+        $o->a = [];
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertAttributeNotEmpty('a', $o);
+    }
+
+    public function testMarkTestIncomplete()
+    {
+        try {
+            $this->markTestIncomplete('incomplete');
+        } catch (IncompleteTestError $e) {
+            $this->assertEquals('incomplete', $e->getMessage());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    public function testMarkTestSkipped()
+    {
+        try {
+            $this->markTestSkipped('skipped');
+        } catch (SkippedTestError $e) {
+            $this->assertEquals('skipped', $e->getMessage());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    public function testAssertCount()
+    {
+        $this->assertCount(2, [1, 2]);
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertCount(2, [1, 2

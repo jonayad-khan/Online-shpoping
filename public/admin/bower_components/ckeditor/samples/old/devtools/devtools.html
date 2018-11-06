@@ -1,0 +1,81 @@
+_FOR => 'for',
+        self::HEADER_X_FORWARDED_HOST => 'host',
+        self::HEADER_X_FORWARDED_PROTO => 'proto',
+        self::HEADER_X_FORWARDED_PORT => 'host',
+    );
+
+    /**
+     * Names for headers that can be trusted when
+     * using trusted proxies.
+     *
+     * The FORWARDED header is the standard as of rfc7239.
+     *
+     * The other headers are non-standard, but widely used
+     * by popular reverse proxies (like Apache mod_proxy or Amazon EC2).
+     */
+    private static $trustedHeaders = array(
+        self::HEADER_FORWARDED => 'FORWARDED',
+        self::HEADER_X_FORWARDED_FOR => 'X_FORWARDED_FOR',
+        self::HEADER_X_FORWARDED_HOST => 'X_FORWARDED_HOST',
+        self::HEADER_X_FORWARDED_PROTO => 'X_FORWARDED_PROTO',
+        self::HEADER_X_FORWARDED_PORT => 'X_FORWARDED_PORT',
+    );
+
+    /**
+     * @param array                $query      The GET parameters
+     * @param array                $request    The POST parameters
+     * @param array                $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
+     * @param array                $cookies    The COOKIE parameters
+     * @param array                $files      The FILES parameters
+     * @param array                $server     The SERVER parameters
+     * @param string|resource|null $content    The raw body data
+     */
+    public function __construct(array $query = array(), array $request = array(), array $attributes = array(), array $cookies = array(), array $files = array(), array $server = array(), $content = null)
+    {
+        $this->initialize($query, $request, $attributes, $cookies, $files, $server, $content);
+    }
+
+    /**
+     * Sets the parameters for this request.
+     *
+     * This method also re-initializes all properties.
+     *
+     * @param array                $query      The GET parameters
+     * @param array                $request    The POST parameters
+     * @param array                $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
+     * @param array                $cookies    The COOKIE parameters
+     * @param array                $files      The FILES parameters
+     * @param array                $server     The SERVER parameters
+     * @param string|resource|null $content    The raw body data
+     */
+    public function initialize(array $query = array(), array $request = array(), array $attributes = array(), array $cookies = array(), array $files = array(), array $server = array(), $content = null)
+    {
+        $this->request = new ParameterBag($request);
+        $this->query = new ParameterBag($query);
+        $this->attributes = new ParameterBag($attributes);
+        $this->cookies = new ParameterBag($cookies);
+        $this->files = new FileBag($files);
+        $this->server = new ServerBag($server);
+        $this->headers = new HeaderBag($this->server->getHeaders());
+
+        $this->content = $content;
+        $this->languages = null;
+        $this->charsets = null;
+        $this->encodings = null;
+        $this->acceptableContentTypes = null;
+        $this->pathInfo = null;
+        $this->requestUri = null;
+        $this->baseUrl = null;
+        $this->basePath = null;
+        $this->method = null;
+        $this->format = null;
+    }
+
+    /**
+     * Creates a new request with values from PHP's super globals.
+     *
+     * @return static
+     */
+    public static function createFromGlobals()
+    {
+        $request = self::createRequestFromFactory($_GET, 

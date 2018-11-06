@@ -1,0 +1,28 @@
+<?php
+
+namespace Faker\Provider\cs_CZ;
+
+class Company extends \Faker\Provider\Company
+{
+    /**
+     * @var array Czech company name formats.
+     */
+    protected static $formats = array(
+        '{{lastName}} {{companySuffix}}',
+        '{{lastName}} {{lastName}} {{companySuffix}}',
+        '{{lastName}}-{{lastName}} {{companySuffix}}',
+        '{{lastName}} a {{lastName}} {{companySuffix}}',
+    );
+
+    /**
+     * @var array Czech catch phrase formats.
+     */
+    protected static $catchPhraseFormats = array(
+        '{{catchPhraseVerb}} {{catchPhraseNoun}} {{catchPhraseAttribute}}',
+        '{{catchPhraseVerb}} {{catchPhraseNoun}} a {{catchPhraseNoun}} {{catchPhraseAttribute}}',
+        '{{catchPhraseVerb}} {{catchPhraseNoun}} {{catchPhraseAttribute}} a {{catchPhraseAttribute}}',
+        'Ne{{catchPhraseVerb}} {{catchPhraseNoun}} {{catchPhraseAttribute}}',
+    );
+
+    /**
+     * @var array Czech nou

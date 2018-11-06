@@ -1,0 +1,32 @@
+ {
+            $doctype = strtolower($doctype);
+        }
+
+        return $doctype."\n".$html;
+    }
+
+    /**
+     * @param \DOMDocument    $document
+     * @param Css\Rule\Rule[] $rules
+     * @return \DOMDocument
+     */
+    protected function inline(\DOMDocument $document, array $rules)
+    {
+        if (empty($rules)) {
+            return $document;
+        }
+
+        $propertyStorage = new \SplObjectStorage();
+
+        $xPath = new \DOMXPath($document);
+
+        usort($rules, array(RuleProcessor::class, 'sortOnSpecificity'));
+
+        foreach ($rules as $rule) {
+            try {
+                if (null !== $this->cssConverter) {
+                    $expression = $this->cssConverter->toXPath($rule->getSelector());
+                } else {
+                    // Compatibility layer for Symfony 2.7 and older
+                    $expression = CssSelector::toXPath($rule->getSelector());
+                }

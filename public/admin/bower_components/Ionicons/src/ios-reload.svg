@@ -1,0 +1,44 @@
+<?php
+
+namespace Illuminate\Http\Resources;
+
+use Exception;
+
+trait DelegatesToResource
+{
+    /**
+     * Get the value of the resource's route key.
+     *
+     * @return mixed
+     */
+    public function getRouteKey()
+    {
+        return $this->resource->getRouteKey();
+    }
+
+    /**
+     * Get the route key for the resource.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return $this->resource->getRouteKeyName();
+    }
+
+    /**
+     * Retrieve the model for a bound value.
+     *
+     * @param  mixed  $value
+     * @return void
+     * @throws \Exception
+     */
+    public function resolveRouteBinding($value)
+    {
+        throw new Exception('Resources may not be implicitly resolved from route bindings.');
+    }
+
+    /**
+     * Determine if the given attribute exists.
+     *
+  

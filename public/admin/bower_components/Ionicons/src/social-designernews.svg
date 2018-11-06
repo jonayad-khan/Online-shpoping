@@ -1,0 +1,23 @@
+
+<?php $__env->startSection('pageTitle'); ?>
+    Product
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('pgSubTitle'); ?>
+    Manage Product
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('content'); ?>
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">Product Information Data Table</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <?php if($message = Session::get('message')): ?>
+                        <h3 class="text-center text-success"><?php echo e($message); ?></h3>
+                    <?php endif; ?>
+                    <div class="box-body">
+                        <table id="exam

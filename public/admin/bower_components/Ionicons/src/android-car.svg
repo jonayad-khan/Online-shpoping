@@ -1,0 +1,32 @@
+ Coverage Report:';
+
+            $output .= $this->format($colors['header'], $padding, $title);
+            $output .= $this->format($colors['header'], $padding, $date);
+            $output .= $this->format($colors['header'], $padding, '');
+            $output .= $this->format($colors['header'], $padding, ' Summary:');
+        }
+
+        $output .= $this->format($colors['classes'], $padding, $classes);
+        $output .= $this->format($colors['methods'], $padding, $methods);
+        $output .= $this->format($colors['lines'], $padding, $lines);
+
+        if ($this->showOnlySummary) {
+            return $output . PHP_EOL;
+        }
+
+        $classCoverage = [];
+
+        foreach ($report as $item) {
+            if (!$item instanceof File) {
+                continue;
+            }
+
+            $classes = $item->getClassesAndTraits();
+
+            foreach ($classes as $className => $class) {
+                $classStatements        = 0;
+                $coveredClassStatements = 0;
+                $coveredMethods         = 0;
+                $classMethods           = 0;
+
+                foreach ($cla

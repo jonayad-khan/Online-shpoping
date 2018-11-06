@@ -1,0 +1,91 @@
+<?php
+
+namespace Illuminate\Auth;
+
+use RuntimeException;
+use Illuminate\Support\Str;
+use Illuminate\Support\Traits\Macroable;
+use Illuminate\Contracts\Session\Session;
+use Illuminate\Contracts\Auth\UserProvider;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Auth\StatefulGuard;
+use Symfony\Component\HttpFoundation\Request;
+use Illuminate\Contracts\Auth\SupportsBasicAuth;
+use Illuminate\Contracts\Cookie\QueueingFactory as CookieJar;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+
+class SessionGuard implements StatefulGuard, SupportsBasicAuth
+{
+    use GuardHelpers, Macroable;
+
+    /**
+     * The name of the Guard. Typically "session".
+     *
+     * Corresponds to guard name in authentication configuration.
+     *
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * The user we last attempted to retrieve.
+     *
+     * @var \Illuminate\Contracts\Auth\Authenticatable
+     */
+    protected $lastAttempted;
+
+    /**
+     * Indicates if the user was authenticated via a recaller cookie.
+     *
+     * @var bool
+     */
+    protected $viaRemember = false;
+
+    /**
+     * The session used by the guard.
+     *
+     * @var \Illuminate\Contracts\Session\Session
+     */
+    protected $session;
+
+    /**
+     * The Illuminate cookie creator service.
+     *
+     * @var \Illuminate\Contracts\Cookie\QueueingFactory
+     */
+    protected $cookie;
+
+    /**
+     * The request instance.
+     *
+     * @var \Symfony\Component\HttpFoundation\Request
+     */
+    protected $request;
+
+    /**
+     * The event dispatcher instance.
+     *
+     * @var \Illuminate\Contracts\Events\Dispatcher
+     */
+    protected $events;
+
+    /**
+     * Indicates if the logout method has been called.
+     *
+     * @var bool
+     */
+    protected $loggedOut = false;
+
+    /**
+     * Indicates if a token user retrieval has been attempted.
+     *
+     * @var bool
+     */
+    protected $recallAttempted = false;
+
+    /**
+     * Create a new authentication guard.
+     *
+     * @param  string  $name
+     * @param  \Illuminate\Contracts\Auth\UserP

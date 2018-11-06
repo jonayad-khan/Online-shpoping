@@ -1,0 +1,29 @@
+  if ($(this).hasClass(namespace + 'pause')) {
+              slider.pause();
+              slider.manualPause = true;
+            } else {
+              slider.play();
+              slider.manualPause = false;
+            }
+          });
+          // Prevent iOS click event bug
+          if (touch) {
+            slider.pausePlay.bind("click touchstart", function(event) {
+              event.preventDefault();
+            });
+          }
+        },
+        update: function(state) {
+          (state === "play") ? slider.pausePlay.removeClass(namespace + 'pause').addClass(namespace + 'play').text(vars.playText) : slider.pausePlay.removeClass(namespace + 'play').addClass(namespace + 'pause').text(vars.pauseText);
+        }
+      },
+      touch: function() {
+        var startX,
+          startY,
+          offset,
+          cwidth,
+          dx,
+          startT,
+          scrolling = false;
+              
+   

@@ -1,0 +1,37 @@
+     0: TraitB
+                            )
+                        )
+                        method: throw
+                        newModifier: MODIFIER_PROTECTED (2)
+                        newName: public
+                    )
+                    3: Stmt_TraitUseAdaptation_Alias(
+                        trait: Name(
+                            parts: array(
+                                0: TraitB
+                            )
+                        )
+                        method: self
+                        newModifier: MODIFIER_PROTECTED (2)
+                        newName: null
+                    )
+                    4: Stmt_TraitUseAdaptation_Alias(
+                        trait: null
+                        method: exit
+                        newModifier: null
+                        newName: die
+                    )
+                    5: Stmt_TraitUseAdaptation_Alias(
+                        trait: Name_FullyQualified(
+                            parts: array(
+                                0: TraitC
+                            )
+                        )
+                        method: exit
+                        newModifier: null
+                        newName: bye
+                    )
+                    6: Stmt_TraitUseAdaptation_Alias(
+                        trait: Name_Relative(
+                            parts: array(
+                                0: Trait

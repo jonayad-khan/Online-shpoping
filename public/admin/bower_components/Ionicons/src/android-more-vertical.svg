@@ -1,0 +1,37 @@
+rl($root)
+    {
+        $this->forcedRoot = rtrim($root, '/');
+
+        $this->cachedRoot = null;
+    }
+
+    /**
+     * Set a callback to be used to format the host of generated URLs.
+     *
+     * @param  \Closure  $callback
+     * @return $this
+     */
+    public function formatHostUsing(Closure $callback)
+    {
+        $this->formatHostUsing = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Set a callback to be used to format the path of generated URLs.
+     *
+     * @param  \Closure  $callback
+     * @return $this
+     */
+    public function formatPathUsing(Closure $callback)
+    {
+        $this->formatPathUsing = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Get the path formatter being used by the URL generator.
+     *
+     * @retur

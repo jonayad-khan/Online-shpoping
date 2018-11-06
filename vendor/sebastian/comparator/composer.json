@@ -1,0 +1,36 @@
+if (!$errors5->hasErrors()) {
+        // If PHP 7 parse has errors but PHP 5 parse has no errors, use PHP 5 result
+        return [$stmts5, $errors5];
+    }
+}
+// If PHP 7 succeeds or both fail use PHP 7 result
+return [$stmts7, $errors7];
+```
+
+#### Error handling in the lexer
+
+In order to support recovery from lexer errors, the signature of the `startLexing()` method changed
+to optionally accept an `ErrorHandler`:
+
+```php
+// OLD
+public function startLexing($code);
+// NEW
+public function startLexing($code, ErrorHandler $errorHandler = null);
+```
+
+If you use a custom lexer with overriden `startLexing()` method, it needs to be changed to accept
+the extra parameter. The value should be passed on to the parent method.
+
+#### Error checks in node constructors
+
+The constructors of certain nodes used to contain additional checks for semantic errors, such as
+creating a try block without either catch or finally. These checks have been moved from the node
+constructors into the parser. This allows recovery from such errors, as well as representing the
+resulting (invalid) AST.
+
+This means that certain error conditions are no longer checked for manually constructed nodes.
+
+### Removed methods, arguments, options
+
+The following methods, arguments or options have been removed

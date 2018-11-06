@@ -1,0 +1,85 @@
+  |     paper.circle(10, 10, 5),
+	     |     paper.circle(30, 10, 5)
+	     | );
+	     | st.attr({fill: "red"}); // changes the fill of both circles
+	    \*/
+	    paperproto.set = function (itemsArray) {
+	        !R.is(itemsArray, "array") && (itemsArray = Array.prototype.splice.call(arguments, 0, arguments.length));
+	        var out = new Set(itemsArray);
+	        this.__set__ && this.__set__.push(out);
+	        out["paper"] = this;
+	        out["type"] = "set";
+	        return out;
+	    };
+	    /*\
+	     * Paper.setStart
+	     [ method ]
+	     **
+	     * Creates @Paper.set. All elements that will be created after calling this method and before calling
+	     * @Paper.setFinish will be added to the set.
+	     **
+	     > Usage
+	     | paper.setStart();
+	     | paper.circle(10, 10, 5),
+	     | paper.circle(30, 10, 5)
+	     | var st = paper.setFinish();
+	     | st.attr({fill: "red"}); // changes the fill of both circles
+	    \*/
+	    paperproto.setStart = function (set) {
+	        this.__set__ = set || this.set();
+	    };
+	    /*\
+	     * Paper.setFinish
+	     [ method ]
+	     **
+	     * See @Paper.setStart. This method finishes catching and returns resulting set.
+	     **
+	     = (object) set
+	    \*/
+	    paperproto.setFinish = function (set) {
+	        var out = this.__set__;
+	        delete this.__set__;
+	        return out;
+	    };
+	    /*\
+	     * Paper.getSize
+	     [ method ]
+	     **
+	     * Obtains current paper actual size.
+	     **
+	     = (object)
+	     \*/
+	    paperproto.getSize = function () {
+	        var container = this.canvas.parentNode;
+	        return {
+	            width: container.offsetWidth,
+	            height: container.offsetHeight
+	                };
+	        };
+	    /*\
+	     * Paper.setSize
+	     [ method ]
+	     **
+	     * If you need to change dimensions of the canvas call this method
+	     **
+	     > Parameters
+	     **
+	     - width (number) new width of the canvas
+	     - height (number) new height of the canvas
+	    \*/
+	    paperproto.setSize = function (width, height) {
+	        return R._engine.setSize.call(this, width, height);
+	    };
+	    /*\
+	     * Paper.setViewBox
+	     [ method ]
+	     **
+	     * Sets the view box of the paper. Practically it gives you ability to zoom and pan whole paper surface by
+	     * specifying new boundaries.
+	     **
+	     > Parameters
+	     **
+	     - x (number) new x position, default is `0`
+	     - y (number) new y position, default is `0`
+	     - w (number) new width of the canvas
+	     - h

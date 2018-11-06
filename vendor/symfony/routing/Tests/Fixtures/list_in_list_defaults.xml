@@ -1,0 +1,21 @@
+blic function rememberMock(\Mockery\MockInterface $mock)
+    {
+        if (!isset($this->_mocks[get_class($mock)])) {
+            $this->_mocks[get_class($mock)] = $mock;
+        } else {
+            /**
+             * This condition triggers for an instance mock where origin mock
+             * is already remembered
+             */
+            $this->_mocks[] = $mock;
+        }
+        return $mock;
+    }
+
+    /**
+     * Retrieve the last remembered mock object, which is the same as saying
+     * retrieve the current mock being programmed where you have yet to call
+     * mock() to change it - thus why the method name is "self" since it will be
+     * be used during the programming of the same mock.
+     *
+     

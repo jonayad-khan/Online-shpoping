@@ -1,0 +1,68 @@
+<?php
+namespace Hamcrest\Xml;
+
+class HasXPathTest extends \Hamcrest\AbstractMatcherTest
+{
+    protected static $xml;
+    protected static $doc;
+    protected static $html;
+
+    public static function setUpBeforeClass()
+    {
+        self::$xml = <<<XML
+<?xml version="1.0"?>
+<users>
+    <user>
+        <id>alice</id>
+        <name>Alice Frankel</name>
+        <role>admin</role>
+    </user>
+    <user>
+        <id>bob</id>
+        <name>Bob Frankel</name>
+        <role>user</role>
+    </user>
+    <user>
+        <id>charlie</id>
+        <name>Charlie Chan</name>
+        <role>user</role>
+    </user>
+</users>
+XML;
+        self::$doc = new \DOMDocument();
+        self::$doc->loadXML(self::$xml);
+
+        self::$html = <<<HTML
+<html>
+    <head>
+        <title>Home Page</title>
+    </head>
+    <body>
+        <h1>Heading</h1>
+        <p>Some text</p>
+    </body>
+</html>
+HTML;
+    }
+
+    protected function createMatcher()
+    {
+        return \Hamcrest\Xml\HasXPath::hasXPath('/users/user');
+    }
+
+    public function testMatchesWhenXPathIsFound()
+    {
+        assertThat('one match', self::$doc, hasXPath('user[id = "bob"]'));
+        assertThat('two matches', self::$doc, hasXPath('user[role = "user"]'));
+    }
+
+    public function testDoesNotMatchWhenXPathIsNotFound()
+    {
+        assertThat(
+            'no match',
+            self::$doc,
+            not(hasXPath('user[contains(id, "frank")]'))
+        );
+    }
+
+    public fun

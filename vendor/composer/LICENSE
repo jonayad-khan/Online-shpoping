@@ -1,0 +1,36 @@
+<?php
+
+namespace PhpParser;
+
+class ErrorTest extends \PHPUnit_Framework_TestCase
+{
+    public function testConstruct() {
+        $attributes = array(
+            'startLine' => 10,
+            'endLine' => 11,
+        );
+        $error = new Error('Some error', $attributes);
+
+        $this->assertSame('Some error', $error->getRawMessage());
+        $this->assertSame($attributes, $error->getAttributes());
+        $this->assertSame(10, $error->getStartLine());
+        $this->assertSame(11, $error->getEndLine());
+        $this->assertSame('Some error on line 10', $error->getMessage());
+
+        return $error;
+    }
+
+    /**
+     * @depends testConstruct
+     */
+    public function testSetMessageAndLine(Error $error) {
+        $error->setRawMessage('Some other error');
+        $this->assertSame('Some other error', $error->getRawMessage());
+
+        $error->setStartLine(15);
+        $this->assertSame(15, $error->getStartLine());
+        $this->assertSame('Some other error on line 15', $error->getMessage());
+    }
+
+    public function testUnknownLine() {
+     

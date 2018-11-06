@@ -1,0 +1,38 @@
+<?php
+
+/*
+ * This file is part of the Monolog package.
+ *
+ * (c) Jordi Boggiano <j.boggiano@seld.be>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Monolog\Handler;
+
+use Monolog\Formatter\FormatterInterface;
+use Monolog\Logger;
+use Monolog\Handler\Slack\SlackRecord;
+
+/**
+ * Sends notifications through Slack API
+ *
+ * @author Greg Kedzierski <greg@gregkedzierski.com>
+ * @see    https://api.slack.com/
+ */
+class SlackHandler extends SocketHandler
+{
+    /**
+     * Slack API token
+     * @var string
+     */
+    private $token;
+
+    /**
+     * Instance of the SlackRecord util class preparing data for Slack API.
+     * @var SlackRecord
+     */
+    private $slackRecord;
+
+    

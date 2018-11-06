@@ -1,0 +1,24 @@
+    y: y,
+	            x2: x2,
+	            y2: y2,
+	            width: x2 - x,
+	            height: y2 - y
+	        };
+	    };
+	    setproto.clone = function (s) {
+	        s = this.paper.set();
+	        for (var i = 0, ii = this.items.length; i < ii; i++) {
+	            s.push(this.items[i].clone());
+	        }
+	        return s;
+	    };
+	    setproto.toString = function () {
+	        return "Rapha\xebl\u2018s set";
+	    };
+
+	    setproto.glow = function(glowConfig) {
+	        var ret = this.paper.set();
+	        this.forEach(function(shape, index){
+	            var g = shape.glow(glowConfig);
+	            if(g != null){
+	                g.forEach(f

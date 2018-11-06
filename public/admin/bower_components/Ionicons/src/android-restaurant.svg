@@ -1,0 +1,19 @@
+ject double, which doesn't have any expectations about the object behavior,
+but when put in specific environment, behaves in specific way. Ok, I know, it's cryptic,
+but bear with me for a minute. Simply put, a stub is a dummy, which depending on the called
+method signature does different things (has logic). To create stubs in Prophecy:
+
+```php
+$prophecy->read('123')->willReturn('value');
+```
+
+Oh wow. We've just made an arbitrary call on the object prophecy? Yes, we did. And this
+call returned us a new object instance of class `MethodProphecy`. Yep, that's a specific
+method with arguments prophecy. Method prophecies give you the ability to create method
+promises or predictions. We'll talk about method predictions later in the _Mocks_ section.
+
+#### Promises
+
+Promises are logical blocks, that represent your fictional methods in prophecy terms
+and they are handled by the `MethodProphecy::will(PromiseInterface $promise)` method.
+As a matter of fact, the call that we made earlier (`willRetur

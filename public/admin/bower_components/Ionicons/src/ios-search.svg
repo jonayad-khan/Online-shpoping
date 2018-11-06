@@ -1,0 +1,25 @@
+ghts.splice(i, 1);
+
+                triggerRedrawOverlay();
+            }
+        }
+
+        function indexOfHighlight(s, p) {
+            for (var i = 0; i < highlights.length; ++i) {
+                var h = highlights[i];
+                if (h.series == s && h.point[0] == p[0]
+                    && h.point[1] == p[1])
+                    return i;
+            }
+            return -1;
+        }
+
+        function drawPointHighlight(series, point) {
+            var x = point[0], y = point[1],
+                axisx = series.xaxis, axisy = series.yaxis,
+                highlightColor = (typeof series.highlightColor === "string") ? series.highlightColor : $.color.parse(series.color).scale('a', 0.5).toString();
+
+            if (x < axisx.min || x > axisx.max || y < axisy.min || y > axisy.max)
+                return;
+
+            var pointRadius = series.points.radius + series.points.lineWid

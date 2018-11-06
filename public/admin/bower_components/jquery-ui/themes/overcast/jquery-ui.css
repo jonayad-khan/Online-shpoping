@@ -1,0 +1,1062 @@
+         if (!end) {
+	                        end = 100;
+	                        j = ii;
+	                    }
+	                    end = toFloat(end);
+	                    var d = (end - start) / (j - i + 1);
+	                    for (; i < j; i++) {
+	                        start += d;
+	                        dots[i].offset = start + "%";
+	                    }
+	                }
+	            }
+	            return dots;
+	        }),
+	        tear = R._tear = function (el, paper) {
+	            el == paper.top && (paper.top = el.prev);
+	            el == paper.bottom && (paper.bottom = el.next);
+	            el.next && (el.next.prev = el.prev);
+	            el.prev && (el.prev.next = el.next);
+	        },
+	        tofront = R._tofront = function (el, paper) {
+	            if (paper.top === el) {
+	                return;
+	            }
+	            tear(el, paper);
+	            el.next = null;
+	            el.prev = paper.top;
+	            paper.top.next = el;
+	            paper.top = el;
+	        },
+	        toback = R._toback = function (el, paper) {
+	            if (paper.bottom === el) {
+	                return;
+	            }
+	            tear(el, paper);
+	            el.next = paper.bottom;
+	            el.prev = null;
+	            paper.bottom.prev = el;
+	            paper.bottom = el;
+	        },
+	        insertafter = R._insertafter = function (el, el2, paper) {
+	            tear(el, paper);
+	            el2 == paper.top && (paper.top = el);
+	            el2.next && (el2.next.prev = el);
+	            el.next = el2.next;
+	            el.prev = el2;
+	            el2.next = el;
+	        },
+	        insertbefore = R._insertbefore = function (el, el2, paper) {
+	            tear(el, paper);
+	            el2 == paper.bottom && (paper.bottom = el);
+	            el2.prev && (el2.prev.next = el);
+	            el.prev = el2.prev;
+	            el2.prev = el;
+	            el.next = el2;
+	        },
+	        /*\
+	         * Raphael.toMatrix
+	         [ method ]
+	         **
+	         * Utility method
+	         **
+	         * Returns matrix of transformations applied to a given path
+	         > Parameters
+	         - path (string) path string
+	         - transform (string|array) transformation string
+	         = (object) @Matrix
+	        \*/
+	        toMatrix = R.toMatrix = function (path, transform) {
+	            var bb = pathDimensions(path),
+	                el = {
+	                    _: {
+	                        transform: E
+	                    },
+	                    getBBox: function () {
+	                        return bb;
+	                    }
+	                };
+	            extractTransform(el, transform);
+	            return el.matrix;
+	        },
+	        /*\
+	         * Raphael.transformPath
+	         [ method ]
+	         **
+	         * Utility method
+	         **
+	         * Returns path transformed by a given transformation
+	         > Parameters
+	         - path (string) path string
+	         - transform (string|array) transformation string
+	         = (string) path
+	        \*/
+	        transformPath = R.transformPath = function (path, transform) {
+	            return mapPath(path, toMatrix(path, transform));
+	        },
+	        extractTransform = R._extractTransform = function (el, tstr) {
+	            if (tstr == null) {
+	                return el._.transform;
+	            }
+	            tstr = Str(tstr).replace(/\.{3}|\u2026/g, el._.transform || E);
+	            var tdata = R.parseTransformString(tstr),
+	                deg = 0,
+	                dx = 0,
+	                dy = 0,
+	                sx = 1,
+	                sy = 1,
+	                _ = el._,
+	                m = new Matrix;
+	            _.transform = tdata || [];
+	            if (tdata) {
+	                for (var i = 0, ii = tdata.length; i < ii; i++) {
+	                    var t = tdata[i],
+	                        tlen = t.length,
+	                        command = Str(t[0]).toLowerCase(),
+	                        absolute = t[0] != command,
+	                        inver = absolute ? m.invert() : 0,
+	                        x1,
+	                        y1,
+	                        x2,
+	                        y2,
+	                        bb;
+	                    if (command == "t" && tlen == 3) {
+	                        if (absolute) {
+	                            x1 = inver.x(0, 0);
+	                            y1 = inver.y(0, 0);
+	                            x2 = inver.x(t[1], t[2]);
+	                            y2 = inver.y(t[1], t[2]);
+	                            m.translate(x2 - x1, y2 - y1);
+	                        } else {
+	                            m.translate(t[1], t[2]);
+	                        }
+	                    } else if (command == "r") {
+	                        if (tlen == 2) {
+	                            bb = bb || el.getBBox(1);
+	                            m.rotate(t[1], bb.x + bb.width / 2, bb.y + bb.height / 2);
+	                            deg += t[1];
+	                        } else if (tlen == 4) {
+	                            if (absolute) {
+	                                x2 = inver.x(t[2], t[3]);
+	                                y2 = inver.y(t[2], t[3]);
+	                                m.rotate(t[1], x2, y2);
+	                            } else {
+	                                m.rotate(t[1], t[2], t[3]);
+	                            }
+	                            deg += t[1];
+	                        }
+	                    } else if (command == "s") {
+	                        if (tlen == 2 || tlen == 3) {
+	                            bb = bb || el.getBBox(1);
+	                            m.scale(t[1], t[tlen - 1], bb.x + bb.width / 2, bb.y + bb.height / 2);
+	                            sx *= t[1];
+	                            sy *= t[tlen - 1];
+	                        } else if (tlen == 5) {
+	                            if (absolute) {
+	                                x2 = inver.x(t[3], t[4]);
+	                                y2 = inver.y(t[3], t[4]);
+	                                m.scale(t[1], t[2], x2, y2);
+	                            } else {
+	                                m.scale(t[1], t[2], t[3], t[4]);
+	                            }
+	                            sx *= t[1];
+	                            sy *= t[2];
+	                        }
+	                    } else if (command == "m" && tlen == 7) {
+	                        m.add(t[1], t[2], t[3], t[4], t[5], t[6]);
+	                    }
+	                    _.dirtyT = 1;
+	                    el.matrix = m;
+	                }
+	            }
+
+	            /*\
+	             * Element.matrix
+	             [ property (object) ]
+	             **
+	             * Keeps @Matrix object, which represents element transformation
+	            \*/
+	            el.matrix = m;
+
+	            _.sx = sx;
+	            _.sy = sy;
+	            _.deg = deg;
+	            _.dx = dx = m.e;
+	            _.dy = dy = m.f;
+
+	            if (sx == 1 && sy == 1 && !deg && _.bbox) {
+	                _.bbox.x += +dx;
+	                _.bbox.y += +dy;
+	            } else {
+	                _.dirtyT = 1;
+	            }
+	        },
+	        getEmpty = function (item) {
+	            var l = item[0];
+	            switch (l.toLowerCase()) {
+	                case "t": return [l, 0, 0];
+	                case "m": return [l, 1, 0, 0, 1, 0, 0];
+	                case "r": if (item.length == 4) {
+	                    return [l, 0, item[2], item[3]];
+	                } else {
+	                    return [l, 0];
+	                }
+	                case "s": if (item.length == 5) {
+	                    return [l, 1, 1, item[3], item[4]];
+	                } else if (item.length == 3) {
+	                    return [l, 1, 1];
+	                } else {
+	                    return [l, 1];
+	                }
+	            }
+	        },
+	        equaliseTransform = R._equaliseTransform = function (t1, t2) {
+	            t2 = Str(t2).replace(/\.{3}|\u2026/g, t1);
+	            t1 = R.parseTransformString(t1) || [];
+	            t2 = R.parseTransformString(t2) || [];
+	            var maxlength = mmax(t1.length, t2.length),
+	                from = [],
+	                to = [],
+	                i = 0, j, jj,
+	                tt1, tt2;
+	            for (; i < maxlength; i++) {
+	                tt1 = t1[i] || getEmpty(t2[i]);
+	                tt2 = t2[i] || getEmpty(tt1);
+	                if ((tt1[0] != tt2[0]) ||
+	                    (tt1[0].toLowerCase() == "r" && (tt1[2] != tt2[2] || tt1[3] != tt2[3])) ||
+	                    (tt1[0].toLowerCase() == "s" && (tt1[3] != tt2[3] || tt1[4] != tt2[4]))
+	                    ) {
+	                    return;
+	                }
+	                from[i] = [];
+	                to[i] = [];
+	                for (j = 0, jj = mmax(tt1.length, tt2.length); j < jj; j++) {
+	                    j in tt1 && (from[i][j] = tt1[j]);
+	                    j in tt2 && (to[i][j] = tt2[j]);
+	                }
+	            }
+	            return {
+	                from: from,
+	                to: to
+	            };
+	        };
+	    R._getContainer = function (x, y, w, h) {
+	        var container;
+	        container = h == null && !R.is(x, "object") ? g.doc.getElementById(x) : x;
+	        if (container == null) {
+	            return;
+	        }
+	        if (container.tagName) {
+	            if (y == null) {
+	                return {
+	                    container: container,
+	                    width: container.style.pixelWidth || container.offsetWidth,
+	                    height: container.style.pixelHeight || container.offsetHeight
+	                };
+	            } else {
+	                return {
+	                    container: container,
+	                    width: y,
+	                    height: w
+	                };
+	            }
+	        }
+	        return {
+	            container: 1,
+	            x: x,
+	            y: y,
+	            width: w,
+	            height: h
+	        };
+	    };
+	    /*\
+	     * Raphael.pathToRelative
+	     [ method ]
+	     **
+	     * Utility method
+	     **
+	     * Converts path to relative form
+	     > Parameters
+	     - pathString (string|array) path string or array of segments
+	     = (array) array of segments.
+	    \*/
+	    R.pathToRelative = pathToRelative;
+	    R._engine = {};
+	    /*\
+	     * Raphael.path2curve
+	     [ method ]
+	     **
+	     * Utility method
+	     **
+	     * Converts path to a new path where all segments are cubic bezier curves.
+	     > Parameters
+	     - pathString (string|array) path string or array of segments
+	     = (array) array of segments.
+	    \*/
+	    R.path2curve = path2curve;
+	    /*\
+	     * Raphael.matrix
+	     [ method ]
+	     **
+	     * Utility method
+	     **
+	     * Returns matrix based on given parameters.
+	     > Parameters
+	     - a (number)
+	     - b (number)
+	     - c (number)
+	     - d (number)
+	     - e (number)
+	     - f (number)
+	     = (object) @Matrix
+	    \*/
+	    R.matrix = function (a, b, c, d, e, f) {
+	        return new Matrix(a, b, c, d, e, f);
+	    };
+	    function Matrix(a, b, c, d, e, f) {
+	        if (a != null) {
+	            this.a = +a;
+	            this.b = +b;
+	            this.c = +c;
+	            this.d = +d;
+	            this.e = +e;
+	            this.f = +f;
+	        } else {
+	            this.a = 1;
+	            this.b = 0;
+	            this.c = 0;
+	            this.d = 1;
+	            this.e = 0;
+	            this.f = 0;
+	        }
+	    }
+	    (function (matrixproto) {
+	        /*\
+	         * Matrix.add
+	         [ method ]
+	         **
+	         * Adds given matrix to existing one.
+	         > Parameters
+	         - a (number)
+	         - b (number)
+	         - c (number)
+	         - d (number)
+	         - e (number)
+	         - f (number)
+	         or
+	         - matrix (object) @Matrix
+	        \*/
+	        matrixproto.add = function (a, b, c, d, e, f) {
+	            var out = [[], [], []],
+	                m = [[this.a, this.c, this.e], [this.b, this.d, this.f], [0, 0, 1]],
+	                matrix = [[a, c, e], [b, d, f], [0, 0, 1]],
+	                x, y, z, res;
+
+	            if (a && a instanceof Matrix) {
+	                matrix = [[a.a, a.c, a.e], [a.b, a.d, a.f], [0, 0, 1]];
+	            }
+
+	            for (x = 0; x < 3; x++) {
+	                for (y = 0; y < 3; y++) {
+	                    res = 0;
+	                    for (z = 0; z < 3; z++) {
+	                        res += m[x][z] * matrix[z][y];
+	                    }
+	                    out[x][y] = res;
+	                }
+	            }
+	            this.a = out[0][0];
+	            this.b = out[1][0];
+	            this.c = out[0][1];
+	            this.d = out[1][1];
+	            this.e = out[0][2];
+	            this.f = out[1][2];
+	        };
+	        /*\
+	         * Matrix.invert
+	         [ method ]
+	         **
+	         * Returns inverted version of the matrix
+	         = (object) @Matrix
+	        \*/
+	        matrixproto.invert = function () {
+	            var me = this,
+	                x = me.a * me.d - me.b * me.c;
+	            return new Matrix(me.d / x, -me.b / x, -me.c / x, me.a / x, (me.c * me.f - me.d * me.e) / x, (me.b * me.e - me.a * me.f) / x);
+	        };
+	        /*\
+	         * Matrix.clone
+	         [ method ]
+	         **
+	         * Returns copy of the matrix
+	         = (object) @Matrix
+	        \*/
+	        matrixproto.clone = function () {
+	            return new Matrix(this.a, this.b, this.c, this.d, this.e, this.f);
+	        };
+	        /*\
+	         * Matrix.translate
+	         [ method ]
+	         **
+	         * Translate the matrix
+	         > Parameters
+	         - x (number)
+	         - y (number)
+	        \*/
+	        matrixproto.translate = function (x, y) {
+	            this.add(1, 0, 0, 1, x, y);
+	        };
+	        /*\
+	         * Matrix.scale
+	         [ method ]
+	         **
+	         * Scales the matrix
+	         > Parameters
+	         - x (number)
+	         - y (number) #optional
+	         - cx (number) #optional
+	         - cy (number) #optional
+	        \*/
+	        matrixproto.scale = function (x, y, cx, cy) {
+	            y == null && (y = x);
+	            (cx || cy) && this.add(1, 0, 0, 1, cx, cy);
+	            this.add(x, 0, 0, y, 0, 0);
+	            (cx || cy) && this.add(1, 0, 0, 1, -cx, -cy);
+	        };
+	        /*\
+	         * Matrix.rotate
+	         [ method ]
+	         **
+	         * Rotates the matrix
+	         > Parameters
+	         - a (number)
+	         - x (number)
+	         - y (number)
+	        \*/
+	        matrixproto.rotate = function (a, x, y) {
+	            a = R.rad(a);
+	            x = x || 0;
+	            y = y || 0;
+	            var cos = +math.cos(a).toFixed(9),
+	                sin = +math.sin(a).toFixed(9);
+	            this.add(cos, sin, -sin, cos, x, y);
+	            this.add(1, 0, 0, 1, -x, -y);
+	        };
+	        /*\
+	         * Matrix.x
+	         [ method ]
+	         **
+	         * Return x coordinate for given point after transformation described by the matrix. See also @Matrix.y
+	         > Parameters
+	         - x (number)
+	         - y (number)
+	         = (number) x
+	        \*/
+	        matrixproto.x = function (x, y) {
+	            return x * this.a + y * this.c + this.e;
+	        };
+	        /*\
+	         * Matrix.y
+	         [ method ]
+	         **
+	         * Return y coordinate for given point after transformation described by the matrix. See also @Matrix.x
+	         > Parameters
+	         - x (number)
+	         - y (number)
+	         = (number) y
+	        \*/
+	        matrixproto.y = function (x, y) {
+	            return x * this.b + y * this.d + this.f;
+	        };
+	        matrixproto.get = function (i) {
+	            return +this[Str.fromCharCode(97 + i)].toFixed(4);
+	        };
+	        matrixproto.toString = function () {
+	            return R.svg ?
+	                "matrix(" + [this.get(0), this.get(1), this.get(2), this.get(3), this.get(4), this.get(5)].join() + ")" :
+	                [this.get(0), this.get(2), this.get(1), this.get(3), 0, 0].join();
+	        };
+	        matrixproto.toFilter = function () {
+	            return "progid:DXImageTransform.Microsoft.Matrix(M11=" + this.get(0) +
+	                ", M12=" + this.get(2) + ", M21=" + this.get(1) + ", M22=" + this.get(3) +
+	                ", Dx=" + this.get(4) + ", Dy=" + this.get(5) + ", sizingmethod='auto expand')";
+	        };
+	        matrixproto.offset = function () {
+	            return [this.e.toFixed(4), this.f.toFixed(4)];
+	        };
+	        function norm(a) {
+	            return a[0] * a[0] + a[1] * a[1];
+	        }
+	        function normalize(a) {
+	            var mag = math.sqrt(norm(a));
+	            a[0] && (a[0] /= mag);
+	            a[1] && (a[1] /= mag);
+	        }
+	        /*\
+	         * Matrix.split
+	         [ method ]
+	         **
+	         * Splits matrix into primitive transformations
+	         = (object) in format:
+	         o dx (number) translation by x
+	         o dy (number) translation by y
+	         o scalex (number) scale by x
+	         o scaley (number) scale by y
+	         o shear (number) shear
+	         o rotate (number) rotation in deg
+	         o isSimple (boolean) could it be represented via simple transformations
+	        \*/
+	        matrixproto.split = function () {
+	            var out = {};
+	            // translation
+	            out.dx = this.e;
+	            out.dy = this.f;
+
+	            // scale and shear
+	            var row = [[this.a, this.c], [this.b, this.d]];
+	            out.scalex = math.sqrt(norm(row[0]));
+	            normalize(row[0]);
+
+	            out.shear = row[0][0] * row[1][0] + row[0][1] * row[1][1];
+	            row[1] = [row[1][0] - row[0][0] * out.shear, row[1][1] - row[0][1] * out.shear];
+
+	            out.scaley = math.sqrt(norm(row[1]));
+	            normalize(row[1]);
+	            out.shear /= out.scaley;
+
+	            // rotation
+	            var sin = -row[0][1],
+	                cos = row[1][1];
+	            if (cos < 0) {
+	                out.rotate = R.deg(math.acos(cos));
+	                if (sin < 0) {
+	                    out.rotate = 360 - out.rotate;
+	                }
+	            } else {
+	                out.rotate = R.deg(math.asin(sin));
+	            }
+
+	            out.isSimple = !+out.shear.toFixed(9) && (out.scalex.toFixed(9) == out.scaley.toFixed(9) || !out.rotate);
+	            out.isSuperSimple = !+out.shear.toFixed(9) && out.scalex.toFixed(9) == out.scaley.toFixed(9) && !out.rotate;
+	            out.noRotation = !+out.shear.toFixed(9) && !out.rotate;
+	            return out;
+	        };
+	        /*\
+	         * Matrix.toTransformString
+	         [ method ]
+	         **
+	         * Return transform string that represents given matrix
+	         = (string) transform string
+	        \*/
+	        matrixproto.toTransformString = function (shorter) {
+	            var s = shorter || this[split]();
+	            if (s.isSimple) {
+	                s.scalex = +s.scalex.toFixed(4);
+	                s.scaley = +s.scaley.toFixed(4);
+	                s.rotate = +s.rotate.toFixed(4);
+	                return  (s.dx || s.dy ? "t" + [s.dx, s.dy] : E) +
+	                        (s.scalex != 1 || s.scaley != 1 ? "s" + [s.scalex, s.scaley, 0, 0] : E) +
+	                        (s.rotate ? "r" + [s.rotate, 0, 0] : E);
+	            } else {
+	                return "m" + [this.get(0), this.get(1), this.get(2), this.get(3), this.get(4), this.get(5)];
+	            }
+	        };
+	    })(Matrix.prototype);
+
+	    var preventDefault = function () {
+	        this.returnValue = false;
+	    },
+	    preventTouch = function () {
+	        return this.originalEvent.preventDefault();
+	    },
+	    stopPropagation = function () {
+	        this.cancelBubble = true;
+	    },
+	    stopTouch = function () {
+	        return this.originalEvent.stopPropagation();
+	    },
+	    getEventPosition = function (e) {
+	        var scrollY = g.doc.documentElement.scrollTop || g.doc.body.scrollTop,
+	            scrollX = g.doc.documentElement.scrollLeft || g.doc.body.scrollLeft;
+
+	        return {
+	            x: e.clientX + scrollX,
+	            y: e.clientY + scrollY
+	        };
+	    },
+	    addEvent = (function () {
+	        if (g.doc.addEventListener) {
+	            return function (obj, type, fn, element) {
+	                var f = function (e) {
+	                    var pos = getEventPosition(e);
+	                    return fn.call(element, e, pos.x, pos.y);
+	                };
+	                obj.addEventListener(type, f, false);
+
+	                if (supportsTouch && touchMap[type]) {
+	                    var _f = function (e) {
+	                        var pos = getEventPosition(e),
+	                            olde = e;
+
+	                        for (var i = 0, ii = e.targetTouches && e.targetTouches.length; i < ii; i++) {
+	                            if (e.targetTouches[i].target == obj) {
+	                                e = e.targetTouches[i];
+	                                e.originalEvent = olde;
+	                                e.preventDefault = preventTouch;
+	                                e.stopPropagation = stopTouch;
+	                                break;
+	                            }
+	                        }
+
+	                        return fn.call(element, e, pos.x, pos.y);
+	                    };
+	                    obj.addEventListener(touchMap[type], _f, false);
+	                }
+
+	                return function () {
+	                    obj.removeEventListener(type, f, false);
+
+	                    if (supportsTouch && touchMap[type])
+	                        obj.removeEventListener(touchMap[type], _f, false);
+
+	                    return true;
+	                };
+	            };
+	        } else if (g.doc.attachEvent) {
+	            return function (obj, type, fn, element) {
+	                var f = function (e) {
+	                    e = e || g.win.event;
+	                    var scrollY = g.doc.documentElement.scrollTop || g.doc.body.scrollTop,
+	                        scrollX = g.doc.documentElement.scrollLeft || g.doc.body.scrollLeft,
+	                        x = e.clientX + scrollX,
+	                        y = e.clientY + scrollY;
+	                    e.preventDefault = e.preventDefault || preventDefault;
+	                    e.stopPropagation = e.stopPropagation || stopPropagation;
+	                    return fn.call(element, e, x, y);
+	                };
+	                obj.attachEvent("on" + type, f);
+	                var detacher = function () {
+	                    obj.detachEvent("on" + type, f);
+	                    return true;
+	                };
+	                return detacher;
+	            };
+	        }
+	    })(),
+	    drag = [],
+	    dragMove = function (e) {
+	        var x = e.clientX,
+	            y = e.clientY,
+	            scrollY = g.doc.documentElement.scrollTop || g.doc.body.scrollTop,
+	            scrollX = g.doc.documentElement.scrollLeft || g.doc.body.scrollLeft,
+	            dragi,
+	            j = drag.length;
+	        while (j--) {
+	            dragi = drag[j];
+	            if (supportsTouch && e.touches) {
+	                var i = e.touches.length,
+	                    touch;
+	                while (i--) {
+	                    touch = e.touches[i];
+	                    if (touch.identifier == dragi.el._drag.id) {
+	                        x = touch.clientX;
+	                        y = touch.clientY;
+	                        (e.originalEvent ? e.originalEvent : e).preventDefault();
+	                        break;
+	                    }
+	                }
+	            } else {
+	                e.preventDefault();
+	            }
+	            var node = dragi.el.node,
+	                o,
+	                next = node.nextSibling,
+	                parent = node.parentNode,
+	                display = node.style.display;
+	            g.win.opera && parent.removeChild(node);
+	            node.style.display = "none";
+	            o = dragi.el.paper.getElementByPoint(x, y);
+	            node.style.display = display;
+	            g.win.opera && (next ? parent.insertBefore(node, next) : parent.appendChild(node));
+	            o && eve("raphael.drag.over." + dragi.el.id, dragi.el, o);
+	            x += scrollX;
+	            y += scrollY;
+	            eve("raphael.drag.move." + dragi.el.id, dragi.move_scope || dragi.el, x - dragi.el._drag.x, y - dragi.el._drag.y, x, y, e);
+	        }
+	    },
+	    dragUp = function (e) {
+	        R.unmousemove(dragMove).unmouseup(dragUp);
+	        var i = drag.length,
+	            dragi;
+	        while (i--) {
+	            dragi = drag[i];
+	            dragi.el._drag = {};
+	            eve("raphael.drag.end." + dragi.el.id, dragi.end_scope || dragi.start_scope || dragi.move_scope || dragi.el, e);
+	        }
+	        drag = [];
+	    },
+	    /*\
+	     * Raphael.el
+	     [ property (object) ]
+	     **
+	     * You can add your own method to elements. This is useful when you want to hack default functionality or
+	     * want to wrap some common transformation or attributes in one method. In difference to canvas methods,
+	     * you can redefine element method at any time. Expending element methods wouldn’t affect set.
+	     > Usage
+	     | Raphael.el.red = function () {
+	     |     this.attr({fill: "#f00"});
+	     | };
+	     | // then use it
+	     | paper.circle(100, 100, 20).red();
+	    \*/
+	    elproto = R.el = {};
+	    /*\
+	     * Element.click
+	     [ method ]
+	     **
+	     * Adds event handler for click for the element.
+	     > Parameters
+	     - handler (function) handler for the event
+	     = (object) @Element
+	    \*/
+	    /*\
+	     * Element.unclick
+	     [ method ]
+	     **
+	     * Removes event handler for click for the element.
+	     > Parameters
+	     - handler (function) #optional handler for the event
+	     = (object) @Element
+	    \*/
+
+	    /*\
+	     * Element.dblclick
+	     [ method ]
+	     **
+	     * Adds event handler for double click for the element.
+	     > Parameters
+	     - handler (function) handler for the event
+	     = (object) @Element
+	    \*/
+	    /*\
+	     * Element.undblclick
+	     [ method ]
+	     **
+	     * Removes event handler for double click for the element.
+	     > Parameters
+	     - handler (function) #optional handler for the event
+	     = (object) @Element
+	    \*/
+
+	    /*\
+	     * Element.mousedown
+	     [ method ]
+	     **
+	     * Adds event handler for mousedown for the element.
+	     > Parameters
+	     - handler (function) handler for the event
+	     = (object) @Element
+	    \*/
+	    /*\
+	     * Element.unmousedown
+	     [ method ]
+	     **
+	     * Removes event handler for mousedown for the element.
+	     > Parameters
+	     - handler (function) #optional handler for the event
+	     = (object) @Element
+	    \*/
+
+	    /*\
+	     * Element.mousemove
+	     [ method ]
+	     **
+	     * Adds event handler for mousemove for the element.
+	     > Parameters
+	     - handler (function) handler for the event
+	     = (object) @Element
+	    \*/
+	    /*\
+	     * Element.unmousemove
+	     [ method ]
+	     **
+	     * Removes event handler for mousemove for the element.
+	     > Parameters
+	     - handler (function) #optional handler for the event
+	     = (object) @Element
+	    \*/
+
+	    /*\
+	     * Element.mouseout
+	     [ method ]
+	     **
+	     * Adds event handler for mouseout for the element.
+	     > Parameters
+	     - handler (function) handler for the event
+	     = (object) @Element
+	    \*/
+	    /*\
+	     * Element.unmouseout
+	     [ method ]
+	     **
+	     * Removes event handler for mouseout for the element.
+	     > Parameters
+	     - handler (function) #optional handler for the event
+	     = (object) @Element
+	    \*/
+
+	    /*\
+	     * Element.mouseover
+	     [ method ]
+	     **
+	     * Adds event handler for mouseover for the element.
+	     > Parameters
+	     - handler (function) handler for the event
+	     = (object) @Element
+	    \*/
+	    /*\
+	     * Element.unmouseover
+	     [ method ]
+	     **
+	     * Removes event handler for mouseover for the element.
+	     > Parameters
+	     - handler (function) #optional handler for the event
+	     = (object) @Element
+	    \*/
+
+	    /*\
+	     * Element.mouseup
+	     [ method ]
+	     **
+	     * Adds event handler for mouseup for the element.
+	     > Parameters
+	     - handler (function) handler for the event
+	     = (object) @Element
+	    \*/
+	    /*\
+	     * Element.unmouseup
+	     [ method ]
+	     **
+	     * Removes event handler for mouseup for the element.
+	     > Parameters
+	     - handler (function) #optional handler for the event
+	     = (object) @Element
+	    \*/
+
+	    /*\
+	     * Element.touchstart
+	     [ method ]
+	     **
+	     * Adds event handler for touchstart for the element.
+	     > Parameters
+	     - handler (function) handler for the event
+	     = (object) @Element
+	    \*/
+	    /*\
+	     * Element.untouchstart
+	     [ method ]
+	     **
+	     * Removes event handler for touchstart for the element.
+	     > Parameters
+	     - handler (function) #optional handler for the event
+	     = (object) @Element
+	    \*/
+
+	    /*\
+	     * Element.touchmove
+	     [ method ]
+	     **
+	     * Adds event handler for touchmove for the element.
+	     > Parameters
+	     - handler (function) handler for the event
+	     = (object) @Element
+	    \*/
+	    /*\
+	     * Element.untouchmove
+	     [ method ]
+	     **
+	     * Removes event handler for touchmove for the element.
+	     > Parameters
+	     - handler (function) #optional handler for the event
+	     = (object) @Element
+	    \*/
+
+	    /*\
+	     * Element.touchend
+	     [ method ]
+	     **
+	     * Adds event handler for touchend for the element.
+	     > Parameters
+	     - handler (function) handler for the event
+	     = (object) @Element
+	    \*/
+	    /*\
+	     * Element.untouchend
+	     [ method ]
+	     **
+	     * Removes event handler for touchend for the element.
+	     > Parameters
+	     - handler (function) #optional handler for the event
+	     = (object) @Element
+	    \*/
+
+	    /*\
+	     * Element.touchcancel
+	     [ method ]
+	     **
+	     * Adds event handler for touchcancel for the element.
+	     > Parameters
+	     - handler (function) handler for the event
+	     = (object) @Element
+	    \*/
+	    /*\
+	     * Element.untouchcancel
+	     [ method ]
+	     **
+	     * Removes event handler for touchcancel for the element.
+	     > Parameters
+	     - handler (function) #optional handler for the event
+	     = (object) @Element
+	    \*/
+	    for (var i = events.length; i--;) {
+	        (function (eventName) {
+	            R[eventName] = elproto[eventName] = function (fn, scope) {
+	                if (R.is(fn, "function")) {
+	                    this.events = this.events || [];
+	                    this.events.push({name: eventName, f: fn, unbind: addEvent(this.shape || this.node || g.doc, eventName, fn, scope || this)});
+	                }
+	                return this;
+	            };
+	            R["un" + eventName] = elproto["un" + eventName] = function (fn) {
+	                var events = this.events || [],
+	                    l = events.length;
+	                while (l--){
+	                    if (events[l].name == eventName && (R.is(fn, "undefined") || events[l].f == fn)) {
+	                        events[l].unbind();
+	                        events.splice(l, 1);
+	                        !events.length && delete this.events;
+	                    }
+	                }
+	                return this;
+	            };
+	        })(events[i]);
+	    }
+
+	    /*\
+	     * Element.data
+	     [ method ]
+	     **
+	     * Adds or retrieves given value associated with given key.
+	     **
+	     * See also @Element.removeData
+	     > Parameters
+	     - key (string) key to store data
+	     - value (any) #optional value to store
+	     = (object) @Element
+	     * or, if value is not specified:
+	     = (any) value
+	     * or, if key and value are not specified:
+	     = (object) Key/value pairs for all the data associated with the element.
+	     > Usage
+	     | for (var i = 0, i < 5, i++) {
+	     |     paper.circle(10 + 15 * i, 10, 10)
+	     |          .attr({fill: "#000"})
+	     |          .data("i", i)
+	     |          .click(function () {
+	     |             alert(this.data("i"));
+	     |          });
+	     | }
+	    \*/
+	    elproto.data = function (key, value) {
+	        var data = eldata[this.id] = eldata[this.id] || {};
+	        if (arguments.length == 0) {
+	            return data;
+	        }
+	        if (arguments.length == 1) {
+	            if (R.is(key, "object")) {
+	                for (var i in key) if (key[has](i)) {
+	                    this.data(i, key[i]);
+	                }
+	                return this;
+	            }
+	            eve("raphael.data.get." + this.id, this, data[key], key);
+	            return data[key];
+	        }
+	        data[key] = value;
+	        eve("raphael.data.set." + this.id, this, value, key);
+	        return this;
+	    };
+	    /*\
+	     * Element.removeData
+	     [ method ]
+	     **
+	     * Removes value associated with an element by given key.
+	     * If key is not provided, removes all the data of the element.
+	     > Parameters
+	     - key (string) #optional key
+	     = (object) @Element
+	    \*/
+	    elproto.removeData = function (key) {
+	        if (key == null) {
+	            eldata[this.id] = {};
+	        } else {
+	            eldata[this.id] && delete eldata[this.id][key];
+	        }
+	        return this;
+	    };
+	     /*\
+	     * Element.getData
+	     [ method ]
+	     **
+	     * Retrieves the element data
+	     = (object) data
+	    \*/
+	    elproto.getData = function () {
+	        return clone(eldata[this.id] || {});
+	    };
+	    /*\
+	     * Element.hover
+	     [ method ]
+	     **
+	     * Adds event handlers for hover for the element.
+	     > Parameters
+	     - f_in (function) handler for hover in
+	     - f_out (function) handler for hover out
+	     - icontext (object) #optional context for hover in handler
+	     - ocontext (object) #optional context for hover out handler
+	     = (object) @Element
+	    \*/
+	    elproto.hover = function (f_in, f_out, scope_in, scope_out) {
+	        return this.mouseover(f_in, scope_in).mouseout(f_out, scope_out || scope_in);
+	    };
+	    /*\
+	     * Element.unhover
+	     [ method ]
+	     **
+	     * Removes event handlers for hover for the element.
+	     > Parameters
+	     - f_in (function) handler for hover in
+	     - f_out (function) handler for hover out
+	     = (object) @Element
+	    \*/
+	    elproto.unhover = function (f_in, f_out) {
+	        return this.unmouseover(f_in).unmouseout(f_out);
+	    };
+	    var draggable = [];
+	    /*\
+	     * Element.drag
+	     [ method ]
+	     **
+	     * Adds event handlers for drag of the element.
+	     > Parameters
+	     - onmove (function) handler for moving
+	     - onstart (function) handler for drag start
+	     - onend (function) handler for drag end
+	     - mcontext (object) #optional context for moving handler
+	     - scontext (object) #optional context for drag start handler
+	     - econtext (object) #optional context for drag end handler
+	     * Additionally following `drag` events will be triggered: `drag.start.<id>` on start,
+	     * `drag.end.<id>` on end and `drag.move.<id>` on every move. When element will be dragged over another element
+	     * `drag.over.<id>` will be fired as well.
+	     *
+	     * Start event and start handle

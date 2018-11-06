@@ -1,0 +1,59 @@
+eAllDay = true;
+				date0.stripTime();
+			}
+			else {
+				forceTimed = true;
+			}
+		}
+
+		dateDelta = this.diffDates(date1, date0);
+
+		dateMutation = new EventDefDateMutation();
+		dateMutation.clearEnd = clearEnd;
+		dateMutation.forceTimed = forceTimed;
+		dateMutation.forceAllDay = forceAllDay;
+		dateMutation.setDateDelta(dateDelta);
+
+		eventDefMutation = new EventDefMutation();
+		eventDefMutation.setDateMutation(dateMutation);
+
+		return eventDefMutation;
+	},
+
+
+	// Utility for apply dragOpacity to a jQuery set
+	applyDragOpacity: function(els) {
+		var opacity = this.opt('dragOpacity');
+
+		if (opacity != null) {
+			els.css('opacity', opacity);
+		}
+	}
+
+});
+
+;;
+
+/*
+Wired up via Grid.event-interation.js by calling
+startSegResize
+*/
+Grid.mixin({
+
+	isResizingSeg: false, // is a segment being resized? boolean
+
+
+	// returns boolean whether resizing actually started or not.
+	// assumes the seg allows resizing.
+	// `dragOptions` are optional.
+	startSegResize: function(seg, ev, dragOptions) {
+		if ($(ev.target).is('.fc-resizer')) {
+			this.buildSegResizeListener(seg, $(ev.target).is('.fc-start-resizer'))
+				.startInteraction(ev, dragOptions);
+			return true;
+		}
+		return false;
+	},
+
+
+	// Crea

@@ -1,0 +1,18 @@
+n value="coord-cy">
+                <xsd:annotation>
+                  <xsd:documentation>This value indicates that the cy information in the coord attribute can be modified.</xsd:documentation>
+                </xsd:annotation>
+              </xsd:enumeration>
+              <xsd:enumeration value="font">
+                <xsd:annotation>
+                  <xsd:documentation>This value indicates that all the information in the font attribute can be modified.</xsd:documentation>
+                </xsd:annotation>
+              </xsd:enumeration>
+              <xsd:enumeration value="font-name">
+                <xsd:annotation>
+                  <xsd:documentation>This value indicates that the name information in the font attribute can be modified.</xsd:documentation>
+                </xsd:annotation>
+              </xsd:enumeration>
+              <xsd:enumeration value="font-size">
+                <xsd:annotation>
+                  <xsd:

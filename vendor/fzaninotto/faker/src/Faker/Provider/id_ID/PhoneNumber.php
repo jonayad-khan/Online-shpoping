@@ -1,0 +1,13 @@
+     'Psy\\Command\\ListCommand\\PropertyEnumerator' => __DIR__ . '/..' . '/psy/psysh/src/Psy/Command/ListCommand/PropertyEnumerator.php',
+        'Psy\\Command\\ListCommand\\TraitEnumerator' => __DIR__ . '/..' . '/psy/psysh/src/Psy/Command/ListCommand/TraitEnumerator.php',
+        'Psy\\Command\\ListCommand\\VariableEnumerator' => __DIR__ . '/..' . '/psy/psysh/src/Psy/Command/ListCommand/VariableEnumerator.php',
+        'Psy\\Command\\ParseCommand' => __DIR__ . '/..' . '/psy/psysh/src/Psy/Command/ParseCommand.php',
+        'Psy\\Command\\PsyVersionCommand' => __DIR__ . '/..' . '/psy/psysh/src/Psy/Command/PsyVersionCommand.php',
+        'Psy\\Command\\ReflectingCommand' => __DIR__ . '/..' . '/psy/psysh/src/Psy/Command/ReflectingCommand.php',
+        'Psy\\Command\\ShowCommand' => __DIR__ . '/..' . '/psy/psysh/src/Psy/Command/ShowCommand.php',
+        'Psy\\Command\\SudoCommand' => __DIR__ . '/..' . '/psy/psysh/src/Psy/Command/SudoCommand.php',
+        'Psy\\Command\\ThrowUpCommand' => __DIR__ . '/..' . '/psy/psysh/src/Psy/Command/ThrowUpCommand.php',
+        'Psy\\Command\\TraceCommand' => __DIR__ . '/..' . '/psy/psysh/src/Psy/Command/TraceCommand.php',
+        'Psy\\Command\\WhereamiCommand' => __DIR__ . '/..' . '/psy/psysh/src/Psy/Command/WhereamiCommand.php',
+        'Psy\\Command\\WtfCommand' => __DIR__ . '/..' . '/psy/psysh/src/Psy/Command/WtfCommand.php',
+      

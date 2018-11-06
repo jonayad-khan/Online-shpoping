@@ -1,0 +1,208 @@
+lt null
+		 *
+		 *  @dtopt Option
+		 *  @name DataTable.defaults.ajax
+		 *  @since 1.10.0
+		 *
+		 * @example
+		 *   // Get JSON data from a file via Ajax.
+		 *   // Note DataTables expects data in the form `{ data: [ ...data... ] }` by default).
+		 *   $('#example').dataTable( {
+		 *     "ajax": "data.json"
+		 *   } );
+		 *
+		 * @example
+		 *   // Get JSON data from a file via Ajax, using `dataSrc` to change
+		 *   // `data` to `tableData` (i.e. `{ tableData: [ ...data... ] }`)
+		 *   $('#example').dataTable( {
+		 *     "ajax": {
+		 *       "url": "data.json",
+		 *       "dataSrc": "tableData"
+		 *     }
+		 *   } );
+		 *
+		 * @example
+		 *   // Get JSON data from a file via Ajax, using `dataSrc` to read data
+		 *   // from a plain array rather than an array in an object
+		 *   $('#example').dataTable( {
+		 *     "ajax": {
+		 *       "url": "data.json",
+		 *       "dataSrc": ""
+		 *     }
+		 *   } );
+		 *
+		 * @example
+		 *   // Manipulate the data returned from the server - add a link to data
+		 *   // (note this can, should, be done using `render` for the column - this
+		 *   // is just a simple example of how the data can be manipulated).
+		 *   $('#example').dataTable( {
+		 *     "ajax": {
+		 *       "url": "data.json",
+		 *       "dataSrc": function ( json ) {
+		 *         for ( var i=0, ien=json.length ; i<ien ; i++ ) {
+		 *           json[i][0] = '<a href="/message/'+json[i][0]+'>View message</a>';
+		 *         }
+		 *         return json;
+		 *       }
+		 *     }
+		 *   } );
+		 *
+		 * @example
+		 *   // Add data to the request
+		 *   $('#example').dataTable( {
+		 *     "ajax": {
+		 *       "url": "data.json",
+		 *       "data": function ( d ) {
+		 *         return {
+		 *           "extra_search": $('#extra').val()
+		 *         };
+		 *       }
+		 *     }
+		 *   } );
+		 *
+		 * @example
+		 *   // Send request as POST
+		 *   $('#example').dataTable( {
+		 *     "ajax": {
+		 *       "url": "data.json",
+		 *       "type": "POST"
+		 *     }
+		 *   } );
+		 *
+		 * @example
+		 *   // Get the data from localStorage (could interface with a form for
+		 *   // adding, editing and removing rows).
+		 *   $('#example').dataTable( {
+		 *     "ajax": function (data, callback, settings) {
+		 *       callback(
+		 *         JSON.parse( localStorage.getItem('dataTablesData') )
+		 *       );
+		 *     }
+		 *   } );
+		 */
+		"ajax": null,
+	
+	
+		/**
+		 * This parameter allows you to readily specify the entries in the length drop
+		 * down menu that DataTables shows when pagination is enabled. It can be
+		 * either a 1D array of options which will be used for both the displayed
+		 * option and the value, or a 2D array which will use the array in the first
+		 * position as the value, and the array in the second position as the
+		 * displayed options (useful for language strings such as 'All').
+		 *
+		 * Note that the `pageLength` property will be automatically set to the
+		 * first value given in this array, unless `pageLength` is also provided.
+		 *  @type array
+		 *  @default [ 10, 25, 50, 100 ]
+		 *
+		 *  @dtopt Option
+		 *  @name DataTable.defaults.lengthMenu
+		 *
+		 *  @example
+		 *    $(document).ready( function() {
+		 *      $('#example').dataTable( {
+		 *        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+		 *      } );
+		 *    } );
+		 */
+		"aLengthMenu": [ 10, 25, 50, 100 ],
+	
+	
+		/**
+		 * The `columns` option in the initialisation parameter allows you to define
+		 * details about the way individual columns behave. For a full list of
+		 * column options that can be set, please see
+		 * {@link DataTable.defaults.column}. Note that if you use `columns` to
+		 * define your columns, you must have an entry in the array for every single
+		 * column that you have in your table (these can be null if you don't which
+		 * to specify any options).
+		 *  @member
+		 *
+		 *  @name DataTable.defaults.column
+		 */
+		"aoColumns": null,
+	
+		/**
+		 * Very similar to `columns`, `columnDefs` allows you to target a specific
+		 * column, multiple columns, or all columns, using the `targets` property of
+		 * each object in the array. This allows great flexibility when creating
+		 * tables, as the `columnDefs` arrays can be of any length, targeting the
+		 * columns you specifically want. `columnDefs` may use any of the column
+		 * options available: {@link DataTable.defaults.column}, but it _must_
+		 * have `targets` defined in each object in the array. Values in the `targets`
+		 * array may be:
+		 *   <ul>
+		 *     <li>a string - class name will be matched on the TH for the column</li>
+		 *     <li>0 or a positive integer - column index counting from the left</li>
+		 *     <li>a negative integer - column index counting from the right</li>
+		 *     <li>the string "_all" - all columns (i.e. assign a default)</li>
+		 *   </ul>
+		 *  @member
+		 *
+		 *  @name DataTable.defaults.columnDefs
+		 */
+		"aoColumnDefs": null,
+	
+	
+		/**
+		 * Basically the same as `search`, this parameter defines the individual column
+		 * filtering state at initialisation time. The array must be of the same size
+		 * as the number of columns, and each element be an object with the parameters
+		 * `search` and `escapeRegex` (the latter is optional). 'null' is also
+		 * accepted and the default will be used.
+		 *  @type array
+		 *  @default []
+		 *
+		 *  @dtopt Option
+		 *  @name DataTable.defaults.searchCols
+		 *
+		 *  @example
+		 *    $(document).ready( function() {
+		 *      $('#example').dataTable( {
+		 *        "searchCols": [
+		 *          null,
+		 *          { "search": "My filter" },
+		 *          null,
+		 *          { "search": "^[0-9]", "escapeRegex": false }
+		 *        ]
+		 *      } );
+		 *    } )
+		 */
+		"aoSearchCols": [],
+	
+	
+		/**
+		 * An array of CSS classes that should be applied to displayed rows. This
+		 * array may be of any length, and DataTables will apply each class
+		 * sequentially, looping when required.
+		 *  @type array
+		 *  @default null <i>Will take the values determined by the `oClasses.stripe*`
+		 *    options</i>
+		 *
+		 *  @dtopt Option
+		 *  @name DataTable.defaults.stripeClasses
+		 *
+		 *  @example
+		 *    $(document).ready( function() {
+		 *      $('#example').dataTable( {
+		 *        "stripeClasses": [ 'strip1', 'strip2', 'strip3' ]
+		 *      } );
+		 *    } )
+		 */
+		"asStripeClasses": null,
+	
+	
+		/**
+		 * Enable or disable automatic column width calculation. This can be disabled
+		 * as an optimisation (it takes some time to calculate the widths) if the
+		 * tables widths are passed in using `columns`.
+		 *  @type boolean
+		 *  @default true
+		 *
+		 *  @dtopt Features
+		 *  @name DataTable.defaults.autoWidth
+		 *
+		 *  @example
+		 *    $(document).ready( function () {
+		 * 

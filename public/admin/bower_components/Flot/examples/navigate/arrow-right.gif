@@ -1,0 +1,20 @@
+ existing, this will hit performance because of missing cached results.
+            if (is_dir(substr($fontcache, 0, -1)) && is_writable(substr($fontcache, 0, -1))) {
+                file_put_contents($fontcache . $cache_name, '<?php return ' . var_export($data, true) . ';');
+            }
+            $data = null;
+        }
+
+        if (!isset($this->fonts[$font])) {
+            $this->addMessage("openFont: no font file found for $font. Do you need to run load_font.php?");
+        }
+
+        //pre_r($this->messages);
+    }
+
+    /**
+     * if the font is not loaded then load it and make the required object
+     * else just make it the current font
+     * the encoding array can contain 'encoding'=> 'none','WinAnsiEncoding','MacRomanEncoding' or 'MacExpertEncoding'
+     * note that encoding='none' will need to be used for symbolic fonts
+     * and 'differences' => an array of mappings b

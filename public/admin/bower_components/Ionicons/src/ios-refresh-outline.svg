@@ -1,0 +1,30 @@
+bDestroy": false,
+	
+	
+		/**
+		 * Enable or disable filtering of data. Filtering in DataTables is "smart" in
+		 * that it allows the end user to input multiple words (space separated) and
+		 * will match a row containing those words, even if not in the order that was
+		 * specified (this allow matching across multiple columns). Note that if you
+		 * wish to use filtering in DataTables this must remain 'true' - to remove the
+		 * default filtering input box and retain filtering abilities, please use
+		 * {@link DataTable.defaults.dom}.
+		 *  @type boolean
+		 *  @default true
+		 *
+		 *  @dtopt Features
+		 *  @name DataTable.defaults.searching
+		 *
+		 *  @example
+		 *    $(document).ready( function () {
+		 *      $('#example').dataTable( {
+		 *        "searching": false
+		 *      } );
+		 *    } );
+		 */
+		"bFilter": true,
+	
+	
+		/**
+		 * Enable or disable the table information display. This shows information
+		 * about the data that is currently visible on the page, including inf

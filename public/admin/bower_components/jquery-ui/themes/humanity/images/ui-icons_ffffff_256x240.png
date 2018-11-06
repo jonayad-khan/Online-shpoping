@@ -1,0 +1,121 @@
+      params["stroke-linejoin"] != null ||
+	            params["stroke-linecap"] != null) {
+	            var fill = node.getElementsByTagName(fillString),
+	                newfill = false;
+	            fill = fill && fill[0];
+	            !fill && (newfill = fill = createNode(fillString));
+	            if (o.type == "image" && params.src) {
+	                fill.src = params.src;
+	            }
+	            params.fill && (fill.on = true);
+	            if (fill.on == null || params.fill == "none" || params.fill === null) {
+	                fill.on = false;
+	            }
+	            if (fill.on && params.fill) {
+	                var isURL = Str(params.fill).match(R._ISURL);
+	                if (isURL) {
+	                    fill.parentNode == node && node.removeChild(fill);
+	                    fill.rotate = true;
+	                    fill.src = isURL[1];
+	                    fill.type = "tile";
+	                    var bbox = o.getBBox(1);
+	                    fill.position = bbox.x + S + bbox.y;
+	                    o._.fillpos = [bbox.x, bbox.y];
+
+	                    R._preload(isURL[1], function () {
+	                        o._.fillsize = [this.offsetWidth, this.offsetHeight];
+	                    });
+	                } else {
+	                    fill.color = R.getRGB(params.fill).hex;
+	                    fill.src = E;
+	                    fill.type = "solid";
+	                    if (R.getRGB(params.fill).error && (res.type in {circle: 1, ellipse: 1} || Str(params.fill).charAt() != "r") && addGradientFill(res, params.fill, fill)) {
+	                        a.fill = "none";
+	                        a.gradient = params.fill;
+	                        fill.rotate = false;
+	                    }
+	                }
+	            }
+	            if ("fill-opacity" in params || "opacity" in params) {
+	                var opacity = ((+a["fill-opacity"] + 1 || 2) - 1) * ((+a.opacity + 1 || 2) - 1) * ((+R.getRGB(params.fill).o + 1 || 2) - 1);
+	                opacity = mmin(mmax(opacity, 0), 1);
+	                fill.opacity = opacity;
+	                if (fill.src) {
+	                    fill.color = "none";
+	                }
+	            }
+	            node.appendChild(fill);
+	            var stroke = (node.getElementsByTagName("stroke") && node.getElementsByTagName("stroke")[0]),
+	            newstroke = false;
+	            !stroke && (newstroke = stroke = createNode("stroke"));
+	            if ((params.stroke && params.stroke != "none") ||
+	                params["stroke-width"] ||
+	                params["stroke-opacity"] != null ||
+	                params["stroke-dasharray"] ||
+	                params["stroke-miterlimit"] ||
+	                params["stroke-linejoin"] ||
+	                params["stroke-linecap"]) {
+	                stroke.on = true;
+	            }
+	            (params.stroke == "none" || params.stroke === null || stroke.on == null || params.stroke == 0 || params["stroke-width"] == 0) && (stroke.on = false);
+	            var strokeColor = R.getRGB(params.stroke);
+	            stroke.on && params.stroke && (stroke.color = strokeColor.hex);
+	            opacity = ((+a["stroke-opacity"] + 1 || 2) - 1) * ((+a.opacity + 1 || 2) - 1) * ((+strokeColor.o + 1 || 2) - 1);
+	            var width = (toFloat(params["stroke-width"]) || 1) * .75;
+	            opacity = mmin(mmax(opacity, 0), 1);
+	            params["stroke-width"] == null && (width = a["stroke-width"]);
+	            params["stroke-width"] && (stroke.weight = width);
+	            width && width < 1 && (opacity *= width) && (stroke.weight = 1);
+	            stroke.opacity = opacity;
+
+	            params["stroke-linejoin"] && (stroke.joinstyle = params["stroke-linejoin"] || "miter");
+	            stroke.miterlimit = params["stroke-miterlimit"] || 8;
+	            params["stroke-linecap"] && (stroke.endcap = params["stroke-linecap"] == "butt" ? "flat" : params["stroke-linecap"] == "square" ? "square" : "round");
+	            if ("stroke-dasharray" in params) {
+	                var dasharray = {
+	                    "-": "shortdash",
+	                    ".": "shortdot",
+	                    "-.": "shortdashdot",
+	                    "-..": "shortdashdotdot",
+	                    ". ": "dot",
+	                    "- ": "dash",
+	                    "--": "longdash",
+	                    "- .": "dashdot",
+	                    "--.": "longdashdot",
+	                    "--..": "longdashdotdot"
+	                };
+	                stroke.dashstyle = dasharray[has](params["stroke-dasharray"]) ? dasharray[params["stroke-dasharray"]] : E;
+	            }
+	            newstroke && node.appendChild(stroke);
+	        }
+	        if (res.type == "text") {
+	            res.paper.canvas.style.display = E;
+	            var span = res.paper.span,
+	                m = 100,
+	                fontSize = a.font && a.font.match(/\d+(?:\.\d*)?(?=px)/);
+	            s = span.style;
+	            a.font && (s.font = a.font);
+	            a["font-family"] && (s.fontFamily = a["font-family"]);
+	            a["font-weight"] && (s.fontWeight = a["font-weight"]);
+	            a["font-style"] && (s.fontStyle = a["font-style"]);
+	            fontSize = toFloat(a["font-size"] || fontSize && fontSize[0]) || 10;
+	            s.fontSize = fontSize * m + "px";
+	            res.textpath.string && (span.innerHTML = Str(res.textpath.string).replace(/</g, "&#60;").replace(/&/g, "&#38;").replace(/\n/g, "<br>"));
+	            var brect = span.getBoundingClientRect();
+	            res.W = a.w = (brect.right - brect.left) / m;
+	            res.H = a.h = (brect.bottom - brect.top) / m;
+	            // res.paper.canvas.style.display = "none";
+	            res.X = a.x;
+	            res.Y = a.y + res.H / 2;
+
+	            ("x" in params || "y" in params) && (res.path.v = R.format("m{0},{1}l{2},{1}", round(a.x * zoom), round(a.y * zoom), round(a.x * zoom) + 1));
+	            var dirtyattrs = ["x", "y", "text", "font", "font-family", "font-weight", "font-style", "font-size"];
+	            for (var d = 0, dd = dirtyattrs.length; d < dd; d++) if (dirtyattrs[d] in params) {
+	                res._.dirty = 1;
+	                break;
+	            }
+
+	            // text-anchor emulation
+	            switch (a["text-anchor"]) {
+	                case "start":
+	                

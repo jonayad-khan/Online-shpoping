@@ -1,0 +1,41 @@
+$relationship};
+        }
+
+        if ($this->resource->{$relationship} === null) {
+            return null;
+        }
+
+        return value($value);
+    }
+
+    /**
+     * Execute a callback if the given pivot table has been loaded.
+     *
+     * @param  string  $table
+     * @param  mixed  $value
+     * @param  mixed  $default
+     * @return \Illuminate\Http\Resources\MissingValue|mixed
+     */
+    protected function whenPivotLoaded($table, $value, $default = null)
+    {
+        if (func_num_args() === 2) {
+            $default = new MissingValue;
+        }
+
+        return $this->when(
+            $this->resource->pivot &&
+            ($this->resource->pivot instanceof $table ||
+             $this->resource->pivot->getTable() === $table),
+            ...[$value, $default]
+        );
+    }
+
+    /**
+     * Transform the given value if it is present.
+     *
+     * @param  mixed  $value
+     * @param  callable  $callback
+     * @param  mixed  $default
+     * @return mixed
+     */
+    protected function transform($value, callable $callback, $default

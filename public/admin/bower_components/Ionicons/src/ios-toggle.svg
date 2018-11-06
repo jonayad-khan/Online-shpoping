@@ -1,0 +1,57 @@
+<?php
+
+namespace Illuminate\View\Compilers;
+
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
+
+class BladeCompiler extends Compiler implements CompilerInterface
+{
+    use Concerns\CompilesAuthorizations,
+        Concerns\CompilesComments,
+        Concerns\CompilesComponents,
+        Concerns\CompilesConditionals,
+        Concerns\CompilesEchos,
+        Concerns\CompilesHelpers,
+        Concerns\CompilesIncludes,
+        Concerns\CompilesInjections,
+        Concerns\CompilesJson,
+        Concerns\CompilesLayouts,
+        Concerns\CompilesLoops,
+        Concerns\CompilesRawPhp,
+        Concerns\CompilesStacks,
+        Concerns\CompilesTranslations;
+
+    /**
+     * All of the registered extensions.
+     *
+     * @var array
+     */
+    protected $extensions = [];
+
+    /**
+     * All custom "directive" handlers.
+     *
+     * @var array
+     */
+    protected $customDirectives = [];
+
+    /**
+     * All custom "condition" handlers.
+     *
+     * @var array
+     */
+    protected $conditions = [];
+
+    /**
+     * The file currently being compiled.
+     *
+     * @var string
+     */
+    protected $path;
+
+    /**
+     * All of the available compiler functions.
+     *
+     * @var array
+     */

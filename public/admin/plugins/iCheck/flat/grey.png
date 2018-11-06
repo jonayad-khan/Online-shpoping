@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>JavaScript Basic</title>
+    </head>
+    
+    <body>
+		<table border="1">
+            <tr>
+                <td>First Number</td>
+                <td><input type="number" name="first_number" id="first_number" ></td>
+            </tr>
+              <tr>
+                <td>Second Number</td>
+                <td><input type="number" name="second_number" id="second_number"></td>
+            </tr>
+			<tr>
+                <td>Result</td>
+                <td><input type="number" name="result" id="result"></td>
+            </tr>
+			<tr>
+				<td colspan="2">
+					<input type="submit" name="btn1" id="btn1" value="+">
+					<input type="submit" name="btn2" id="btn2" value="-">
+					<input type="submit" name="btn3" id="btn3" value="*">
+					<input type="submit" name="btn4" id="btn4" value="/">
+					<input type="submit" name="btn5" id="btn5" value="%">
+				</td>
+			</tr>			
+        </table>
+		
+		<script>		
+			var plus = document.getElementById('btn1');
+			
+			plus.onclick = function(){
+				var firstNumber = Number(document.getElementById('first_number').value);
+				var secondNumber = Number(document.getElementById('second_number').value);
+				
+				firstNumber += secondNumber;
+				
+				document.getElementById('result').value = firstNumber;
+			}
+
+			var minus = document.getElementById('btn2');
+			
+			minus.onclick = function(){
+				var firstNumber = Number(document.getElem

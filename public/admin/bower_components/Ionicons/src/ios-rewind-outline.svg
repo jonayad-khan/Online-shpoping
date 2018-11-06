@@ -1,0 +1,16 @@
+1y, c2x, c2y, p2x, p2y);
+	        } else {
+	            return R.findDotsAtSegment(p1x, p1y, c1x, c1y, c2x, c2y, p2x, p2y, getTatLen(p1x, p1y, c1x, c1y, c2x, c2y, p2x, p2y, length));
+	        }
+	    },
+	    getLengthFactory = function (istotal, subpath) {
+	        return function (path, length, onlystart) {
+	            path = path2curve(path);
+	            var x, y, p, l, sp = "", subpaths = {}, point,
+	                len = 0;
+	            for (var i = 0, ii = path.length; i < ii; i++) {
+	                p = path[i];
+	                if (p[0] == "M") {
+	                    x = +p[1];
+	                    y = +p[2];
+	                } e

@@ -1,0 +1,32 @@
+�c',
+        s : 'vài giây',
+        m : 'một phút',
+        mm : '%d phút',
+        h : 'một giờ',
+        hh : '%d giờ',
+        d : 'một ngày',
+        dd : '%d ngày',
+        M : 'một tháng',
+        MM : '%d tháng',
+        y : 'một năm',
+        yy : '%d năm'
+    },
+    dayOfMonthOrdinalParse: /\d{1,2}/,
+    ordinal : function (number) {
+        return number;
+    },
+    week : {
+        dow : 1, // Monday is the first day of the week.
+        doy : 4  // The week that contains Jan 4th is the first week of the year.
+    }
+});
+
+//! moment.js locale configuration
+//! locale : Pseudo [x-pseudo]
+//! author : Andrew Hood : https://github.com/andrewhood125
+
+hooks.defineLocale('x-pseudo', {
+    months : 'J~áñúá~rý_F~ébrú~árý_~Márc~h_Áp~ríl_~Máý_~Júñé~_Júl~ý_Áú~gúst~_Sép~témb~ér_Ó~ctób~ér_Ñ~óvém~bér_~Décé~mbér'.split('_'),
+    monthsShort : 'J~áñ_~Féb_~Már_~Ápr_~Máý_~Júñ_~Júl_~Áúg_~Sép_~Óct_~Ñóv_~Déc'.split('_'),
+    monthsParseExact : true,
+    weekdays : 'S~úñdá~ý_Mó~ñdáý~_Túé~s

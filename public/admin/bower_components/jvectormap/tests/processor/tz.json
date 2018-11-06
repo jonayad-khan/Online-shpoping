@@ -1,0 +1,1006 @@
+ multi-character set.
+	var chunker = /\[([^\]]*)\]|\(([^\)]*)\)|(LTS|LT|(\w)\4*o?)|([^\w\[\(]+)/g;
+
+	while ((match = chunker.exec(formatStr))) {
+		if (match[1]) { // a literal string inside [ ... ]
+			chunks.push.apply(chunks, // append
+				splitStringLiteral(match[1])
+			);
+		}
+		else if (match[2]) { // non-zero formatting inside ( ... )
+			chunks.push({ maybe: chunkFormatString(match[2]) });
+		}
+		else if (match[3]) { // a formatting token
+			chunks.push({ token: match[3] });
+		}
+		else if (match[5]) { // an unenclosed literal string
+			chunks.push.apply(chunks, // append
+				splitStringLiteral(match[5])
+			);
+		}
+	}
+
+	return chunks;
+}
+
+/*
+Potentially splits a literal-text string into multiple parts. For special cases.
+*/
+function splitStringLiteral(s) {
+	if (s === '. ') {
+		return [ '.', ' ' ]; // for locales with periods bound to the end of each year/month/date
+	}
+	else {
+		return [ s ];
+	}
+}
+
+/*
+Given chunks parsed from a real format string, generate a fake (aka "intermediate") format string with special control
+characters that will eventually be given to moment for formatting, and then post-processed.
+*/
+function buildFakeFormatString(chunks) {
+	var parts = [];
+	var i, chunk;
+
+	for (i = 0; i < chunks.length; i++) {
+		chunk = chunks[i];
+
+		if (typeof chunk === 'string') {
+			parts.push('[' + chunk + ']');
+		}
+		else if (chunk.token) {
+			if (chunk.token in specialTokens) {
+				parts.push(
+					SPECIAL_TOKEN_MARKER + // useful during post-processing
+					'[' + chunk.token + ']' // preserve as literal text
+				);
+			}
+			else {
+				parts.push(chunk.token); // unprotected text implies a format string
+			}
+		}
+		else if (chunk.maybe) {
+			parts.push(
+				MAYBE_MARKER + // useful during post-processing
+				buildFakeFormatString(chunk.maybe) +
+				MAYBE_MARKER
+			);
+		}
+	}
+
+	return parts.join(PART_SEPARATOR);
+}
+
+/*
+Given parsed chunks from a real formatting string, generates an array of unit strings (like "day") that indicate
+in which regard two dates must be similar in order to share range formatting text.
+The `chunks` can be nested (because of "maybe" chunks), however, the returned array will be flat.
+*/
+function buildSameUnits(chunks) {
+	var units = [];
+	var i, chunk;
+	var tokenInfo;
+
+	for (i = 0; i < chunks.length; i++) {
+		chunk = chunks[i];
+
+		if (chunk.token) {
+			tokenInfo = largeTokenMap[chunk.token.charAt(0)];
+			units.push(tokenInfo ? tokenInfo.unit : 'second'); // default to a very strict same-second
+		}
+		else if (chunk.maybe) {
+			units.push.apply(units, // append
+				buildSameUnits(chunk.maybe)
+			);
+		}
+		else {
+			units.push(null);
+		}
+	}
+
+	return units;
+}
+
+
+// Rendering to text
+// ---------------------------------------------------------------------------------------------------------------------
+
+/*
+Formats a date with a fake format string, post-processes the control characters, then returns.
+*/
+function renderFakeFormatString(fakeFormatString, date) {
+	return processMaybeMarkers(
+		renderFakeFormatStringParts(fakeFormatString, date).join('')
+	);
+}
+
+/*
+Formats a date into parts that will have been post-processed, EXCEPT for the "maybe" markers.
+*/
+function renderFakeFormatStringParts(fakeFormatString, date) {
+	var parts = [];
+	var fakeRender = oldMomentFormat(date, fakeFormatString);
+	var fakeParts = fakeRender.split(PART_SEPARATOR);
+	var i, fakePart;
+
+	for (i = 0; i < fakeParts.length; i++) {
+		fakePart = fakeParts[i];
+
+		if (fakePart.charAt(0) === SPECIAL_TOKEN_MARKER) {
+			parts.push(
+				// the literal string IS the token's name.
+				// call special token's registered function.
+				specialTokens[fakePart.substring(1)](date)
+			);
+		}
+		else {
+			parts.push(fakePart);
+		}
+	}
+
+	return parts;
+}
+
+/*
+Accepts an almost-finally-formatted string and processes the "maybe" control characters, returning a new string.
+*/
+function processMaybeMarkers(s) {
+	return s.replace(MAYBE_REGEXP, function(m0, m1) { // regex assumed to have 'g' flag
+		if (m1.match(/[1-9]/)) { // any non-zero numeric characters?
+			return m1;
+		}
+		else {
+			return '';
+		}
+	});
+}
+
+
+// Misc Utils
+// -------------------------------------------------------------------------------------------------
+
+/*
+Returns a unit string, either 'year', 'month', 'day', or null for the most granular formatting token in the string.
+*/
+function queryMostGranularFormatUnit(formatStr) {
+	var chunks = chunkFormatString(formatStr);
+	var i, chunk;
+	var candidate;
+	var best;
+
+	for (i = 0; i < chunks.length; i++) {
+		chunk = chunks[i];
+
+		if (chunk.token) {
+			candidate = largeTokenMap[chunk.token.charAt(0)];
+			if (candidate) {
+				if (!best || candidate.value > best.value) {
+					best = candidate;
+				}
+			}
+		}
+	}
+
+	if (best) {
+		return best.unit;
+	}
+
+	return null;
+};
+
+})();
+
+// quick local references
+var formatDate = FC.formatDate;
+var formatRange = FC.formatRange;
+var oldMomentFormat = FC.oldMomentFormat;
+
+;;
+
+FC.Class = Class; // export
+
+// Class that all other classes will inherit from
+function Class() { }
+
+
+// Called on a class to create a subclass.
+// Last argument contains instance methods. Any argument before the last are considered mixins.
+Class.extend = function() {
+	var members = {};
+	var i;
+
+	for (i = 0; i < arguments.length; i++) {
+		copyOwnProps(arguments[i], members);
+	}
+
+	return extendClass(this, members);
+};
+
+
+// Adds new member variables/methods to the class's prototype.
+// Can be called with another class, or a plain object hash containing new members.
+Class.mixin = function(members) {
+	copyOwnProps(members, this.prototype);
+};
+
+
+function extendClass(superClass, members) {
+	var subClass;
+
+	// ensure a constructor for the subclass, forwarding all arguments to the super-constructor if it doesn't exist
+	if (hasOwnProp(members, 'constructor')) {
+		subClass = members.constructor;
+	}
+	if (typeof subClass !== 'function') {
+		subClass = members.constructor = function() {
+			superClass.apply(this, arguments);
+		};
+	}
+
+	// build the base prototype for the subclass, which is an new object chained to the superclass's prototype
+	subClass.prototype = Object.create(superClass.prototype);
+
+	// copy each member variable/method onto the the subclass's prototype
+	copyOwnProps(members, subClass.prototype);
+
+	// copy over all class variables/methods to the subclass, such as `extend` and `mixin`
+	copyOwnProps(superClass, subClass);
+
+	return subClass;
+}
+
+;;
+
+var EmitterMixin = FC.EmitterMixin = {
+
+	// jQuery-ification via $(this) allows a non-DOM object to have
+	// the same event handling capabilities (including namespaces).
+
+
+	on: function(types, handler) {
+		$(this).on(types, this._prepareIntercept(handler));
+		return this; // for chaining
+	},
+
+
+	one: function(types, handler) {
+		$(this).one(types, this._prepareIntercept(handler));
+		return this; // for chaining
+	},
+
+
+	_prepareIntercept: function(handler) {
+		// handlers are always called with an "event" object as their first param.
+		// sneak the `this` context and arguments into the extra parameter object
+		// and forward them on to the original handler.
+		var intercept = function(ev, extra) {
+			return handler.apply(
+				extra.context || this,
+				extra.args || []
+			);
+		};
+
+		// mimick jQuery's internal "proxy" system (risky, I know)
+		// causing all functions with the same .guid to appear to be the same.
+		// https://github.com/jquery/jquery/blob/2.2.4/src/core.js#L448
+		// this is needed for calling .off with the original non-intercept handler.
+		if (!handler.guid) {
+			handler.guid = $.guid++;
+		}
+		intercept.guid = handler.guid;
+
+		return intercept;
+	},
+
+
+	off: function(types, handler) {
+		$(this).off(types, handler);
+
+		return this; // for chaining
+	},
+
+
+	trigger: function(types) {
+		var args = Array.prototype.slice.call(arguments, 1); // arguments after the first
+
+		// pass in "extra" info to the intercept
+		$(this).triggerHandler(types, { args: args });
+
+		return this; // for chaining
+	},
+
+
+	triggerWith: function(types, context, args) {
+
+		// `triggerHandler` is less reliant on the DOM compared to `trigger`.
+		// pass in "extra" info to the intercept.
+		$(this).triggerHandler(types, { context: context, args: args });
+
+		return this; // for chaining
+	},
+
+
+	hasHandlers: function(type) {
+		var hash = $._data(this, 'events'); // http://blog.jquery.com/2012/08/09/jquery-1-8-released/
+
+		return hash && hash[type] && hash[type].length > 0;
+	}
+
+};
+
+;;
+
+/*
+Utility methods for easily listening to events on another object,
+and more importantly, easily unlistening from them.
+*/
+var ListenerMixin = FC.ListenerMixin = (function() {
+	var guid = 0;
+	var ListenerMixin = {
+
+		listenerId: null,
+
+		/*
+		Given an `other` object that has on/off methods, bind the given `callback` to an event by the given name.
+		The `callback` will be called with the `this` context of the object that .listenTo is being called on.
+		Can be called:
+			.listenTo(other, eventName, callback)
+		OR
+			.listenTo(other, {
+				eventName1: callback1,
+				eventName2: callback2
+			})
+		*/
+		listenTo: function(other, arg, callback) {
+			if (typeof arg === 'object') { // given dictionary of callbacks
+				for (var eventName in arg) {
+					if (arg.hasOwnProperty(eventName)) {
+						this.listenTo(other, eventName, arg[eventName]);
+					}
+				}
+			}
+			else if (typeof arg === 'string') {
+				other.on(
+					arg + '.' + this.getListenerNamespace(), // use event namespacing to identify this object
+					$.proxy(callback, this) // always use `this` context
+						// the usually-undesired jQuery guid behavior doesn't matter,
+						// because we always unbind via namespace
+				);
+			}
+		},
+
+		/*
+		Causes the current object to stop listening to events on the `other` object.
+		`eventName` is optional. If omitted, will stop listening to ALL events on `other`.
+		*/
+		stopListeningTo: function(other, eventName) {
+			other.off((eventName || '') + '.' + this.getListenerNamespace());
+		},
+
+		/*
+		Returns a string, unique to this object, to be used for event namespacing
+		*/
+		getListenerNamespace: function() {
+			if (this.listenerId == null) {
+				this.listenerId = guid++;
+			}
+			return '_listener' + this.listenerId;
+		}
+
+	};
+	return ListenerMixin;
+})();
+;;
+
+var ParsableModelMixin = {
+
+	standardPropMap: {}, // will be cloned by allowRawProps
+
+
+	/*
+	Returns true/false for success
+	*/
+	applyRawProps: function(rawProps) {
+		var standardPropMap = this.standardPropMap;
+		var manualProps = {};
+		var otherProps = {};
+		var propName;
+
+		for (propName in rawProps) {
+			if (standardPropMap[propName] === true) { // copy automatically
+				this[propName] = rawProps[propName];
+			}
+			else if (standardPropMap[propName] === false) {
+				manualProps[propName] = rawProps[propName];
+			}
+			else {
+				otherProps[propName] = rawProps[propName];
+			}
+		}
+
+		this.applyOtherRawProps(otherProps);
+
+		return this.applyManualRawProps(manualProps);
+	},
+
+
+	/*
+	If subclasses override, they must call this supermethod and return the boolean response.
+	*/
+	applyManualRawProps: function(rawProps) {
+		return true;
+	},
+
+
+	applyOtherRawProps: function(rawProps) {
+		// subclasses can implement
+	}
+
+};
+
+
+/*
+TODO: devise a better system
+*/
+var ParsableModelMixin_allowRawProps = function(propDefs) {
+	var proto = this.prototype;
+
+	proto.standardPropMap = Object.create(proto.standardPropMap);
+
+	copyOwnProps(propDefs, proto.standardPropMap);
+};
+
+
+/*
+TODO: devise a better system
+*/
+var ParsableModelMixin_copyVerbatimStandardProps = function(src, dest) {
+	var map = this.prototype.standardPropMap;
+	var propName;
+
+	for (propName in map) {
+		if (
+			src[propName] != null && // in the src object?
+			map[propName] === true // false means "copy verbatim"
+		) {
+			dest[propName] = src[propName];
+		}
+	}
+};
+
+;;
+
+var Model = Class.extend(EmitterMixin, ListenerMixin, {
+
+	_props: null,
+	_watchers: null,
+	_globalWatchArgs: null,
+
+	constructor: function() {
+		this._watchers = {};
+		this._props = {};
+		this.applyGlobalWatchers();
+	},
+
+	applyGlobalWatchers: function() {
+		var argSets = this._globalWatchArgs || [];
+		var i;
+
+		for (i = 0; i < argSets.length; i++) {
+			this.watch.apply(this, argSets[i]);
+		}
+	},
+
+	has: function(name) {
+		return name in this._props;
+	},
+
+	get: function(name) {
+		if (name === undefined) {
+			return this._props;
+		}
+
+		return this._props[name];
+	},
+
+	set: function(name, val) {
+		var newProps;
+
+		if (typeof name === 'string') {
+			newProps = {};
+			newProps[name] = val === undefined ? null : val;
+		}
+		else {
+			newProps = name;
+		}
+
+		this.setProps(newProps);
+	},
+
+	reset: function(newProps) {
+		var oldProps = this._props;
+		var changeset = {}; // will have undefined's to signal unsets
+		var name;
+
+		for (name in oldProps) {
+			changeset[name] = undefined;
+		}
+
+		for (name in newProps) {
+			changeset[name] = newProps[name];
+		}
+
+		this.setProps(changeset);
+	},
+
+	unset: function(name) { // accepts a string or array of strings
+		var newProps = {};
+		var names;
+		var i;
+
+		if (typeof name === 'string') {
+			names = [ name ];
+		}
+		else {
+			names = name;
+		}
+
+		for (i = 0; i < names.length; i++) {
+			newProps[names[i]] = undefined;
+		}
+
+		this.setProps(newProps);
+	},
+
+	setProps: function(newProps) {
+		var changedProps = {};
+		var changedCnt = 0;
+		var name, val;
+
+		for (name in newProps) {
+			val = newProps[name];
+
+			// a change in value?
+			// if an object, don't check equality, because might have been mutated internally.
+			// TODO: eventually enforce immutability.
+			if (
+				typeof val === 'object' ||
+				val !== this._props[name]
+			) {
+				changedProps[name] = val;
+				changedCnt++;
+			}
+		}
+
+		if (changedCnt) {
+
+			this.trigger('before:batchChange', changedProps);
+
+			for (name in changedProps) {
+				val = changedProps[name];
+
+				this.trigger('before:change', name, val);
+				this.trigger('before:change:' + name, val);
+			}
+
+			for (name in changedProps) {
+				val = changedProps[name];
+
+				if (val === undefined) {
+					delete this._props[name];
+				}
+				else {
+					this._props[name] = val;
+				}
+
+				this.trigger('change:' + name, val);
+				this.trigger('change', name, val);
+			}
+
+			this.trigger('batchChange', changedProps);
+		}
+	},
+
+	watch: function(name, depList, startFunc, stopFunc) {
+		var _this = this;
+
+		this.unwatch(name);
+
+		this._watchers[name] = this._watchDeps(depList, function(deps) {
+			var res = startFunc.call(_this, deps);
+
+			if (res && res.then) {
+				_this.unset(name); // put in an unset state while resolving
+				res.then(function(val) {
+					_this.set(name, val);
+				});
+			}
+			else {
+				_this.set(name, res);
+			}
+		}, function() {
+			_this.unset(name);
+
+			if (stopFunc) {
+				stopFunc.call(_this);
+			}
+		});
+	},
+
+	unwatch: function(name) {
+		var watcher = this._watchers[name];
+
+		if (watcher) {
+			delete this._watchers[name];
+			watcher.teardown();
+		}
+	},
+
+	_watchDeps: function(depList, startFunc, stopFunc) {
+		var _this = this;
+		var queuedChangeCnt = 0;
+		var depCnt = depList.length;
+		var satisfyCnt = 0;
+		var values = {}; // what's passed as the `deps` arguments
+		var bindTuples = []; // array of [ eventName, handlerFunc ] arrays
+		var isCallingStop = false;
+
+		function onBeforeDepChange(depName, val, isOptional) {
+			queuedChangeCnt++;
+			if (queuedChangeCnt === 1) { // first change to cause a "stop" ?
+				if (satisfyCnt === depCnt) { // all deps previously satisfied?
+					isCallingStop = true;
+					stopFunc();
+					isCallingStop = false;
+				}
+			}
+		}
+
+		function onDepChange(depName, val, isOptional) {
+
+			if (val === undefined) { // unsetting a value?
+
+				// required dependency that was previously set?
+				if (!isOptional && values[depName] !== undefined) {
+					satisfyCnt--;
+				}
+
+				delete values[depName];
+			}
+			else { // setting a value?
+
+				// required dependency that was previously unset?
+				if (!isOptional && values[depName] === undefined) {
+					satisfyCnt++;
+				}
+
+				values[depName] = val;
+			}
+
+			queuedChangeCnt--;
+			if (!queuedChangeCnt) { // last change to cause a "start"?
+
+				// now finally satisfied or satisfied all along?
+				if (satisfyCnt === depCnt) {
+
+					// if the stopFunc initiated another value change, ignore it.
+					// it will be processed by another change event anyway.
+					if (!isCallingStop) {
+						startFunc(values);
+					}
+				}
+			}
+		}
+
+		// intercept for .on() that remembers handlers
+		function bind(eventName, handler) {
+			_this.on(eventName, handler);
+			bindTuples.push([ eventName, handler ]);
+		}
+
+		// listen to dependency changes
+		depList.forEach(function(depName) {
+			var isOptional = false;
+
+			if (depName.charAt(0) === '?') { // TODO: more DRY
+				depName = depName.substring(1);
+				isOptional = true;
+			}
+
+			bind('before:change:' + depName, function(val) {
+				onBeforeDepChange(depName, val, isOptional);
+			});
+
+			bind('change:' + depName, function(val) {
+				onDepChange(depName, val, isOptional);
+			});
+		});
+
+		// process current dependency values
+		depList.forEach(function(depName) {
+			var isOptional = false;
+
+			if (depName.charAt(0) === '?') { // TODO: more DRY
+				depName = depName.substring(1);
+				isOptional = true;
+			}
+
+			if (_this.has(depName)) {
+				values[depName] = _this.get(depName);
+				satisfyCnt++;
+			}
+			else if (isOptional) {
+				satisfyCnt++;
+			}
+		});
+
+		// initially satisfied
+		if (satisfyCnt === depCnt) {
+			startFunc(values);
+		}
+
+		return {
+			teardown: function() {
+				// remove all handlers
+				for (var i = 0; i < bindTuples.length; i++) {
+					_this.off(bindTuples[i][0], bindTuples[i][1]);
+				}
+				bindTuples = null;
+
+				// was satisfied, so call stopFunc
+				if (satisfyCnt === depCnt) {
+					stopFunc();
+				}
+			},
+			flash: function() {
+				if (satisfyCnt === depCnt) {
+					stopFunc();
+					startFunc(values);
+				}
+			}
+		};
+	},
+
+	flash: function(name) {
+		var watcher = this._watchers[name];
+
+		if (watcher) {
+			watcher.flash();
+		}
+	}
+
+});
+
+
+Model.watch = function(/* same arguments as this.watch() */) {
+	var proto = this.prototype;
+
+	if (!proto._globalWatchArgs) {
+		proto._globalWatchArgs = [];
+	}
+
+	proto._globalWatchArgs.push(arguments);
+};
+
+
+FC.Model = Model;
+
+
+;;
+
+var Promise = {
+
+	construct: function(executor) {
+		var deferred = $.Deferred();
+		var promise = deferred.promise();
+
+		if (typeof executor === 'function') {
+			executor(
+				function(val) { // resolve
+					deferred.resolve(val);
+					attachImmediatelyResolvingThen(promise, val);
+				},
+				function() { // reject
+					deferred.reject();
+					attachImmediatelyRejectingThen(promise);
+				}
+			);
+		}
+
+		return promise;
+	},
+
+	resolve: function(val) {
+		var deferred = $.Deferred().resolve(val);
+		var promise = deferred.promise();
+
+		attachImmediatelyResolvingThen(promise, val);
+
+		return promise;
+	},
+
+	reject: function() {
+		var deferred = $.Deferred().reject();
+		var promise = deferred.promise();
+
+		attachImmediatelyRejectingThen(promise);
+
+		return promise;
+	}
+
+};
+
+
+function attachImmediatelyResolvingThen(promise, val) {
+	promise.then = function(onResolve) {
+		if (typeof onResolve === 'function') {
+			return Promise.resolve(onResolve(val));
+		}
+		return promise;
+	};
+}
+
+
+function attachImmediatelyRejectingThen(promise) {
+	promise.then = function(onResolve, onReject) {
+		if (typeof onReject === 'function') {
+			onReject();
+		}
+		return promise;
+	};
+}
+
+
+FC.Promise = Promise;
+
+;;
+
+var TaskQueue = Class.extend(EmitterMixin, {
+
+	q: null,
+	isPaused: false,
+	isRunning: false,
+
+
+	constructor: function() {
+		this.q = [];
+	},
+
+
+	queue: function(/* taskFunc, taskFunc... */) {
+		this.q.push.apply(this.q, arguments); // append
+		this.tryStart();
+	},
+
+
+	pause: function() {
+		this.isPaused = true;
+	},
+
+
+	resume: function() {
+		this.isPaused = false;
+		this.tryStart();
+	},
+
+
+	tryStart: function() {
+		if (!this.isRunning && this.canRunNext()) {
+			this.isRunning = true;
+			this.trigger('start');
+			this.runNext();
+		}
+	},
+
+
+	canRunNext: function() {
+		return !this.isPaused && this.q.length;
+	},
+
+
+	runNext: function() { // does not check canRunNext
+		this.runTask(this.q.shift());
+	},
+
+
+	runTask: function(task) {
+		this.runTaskFunc(task);
+	},
+
+
+	runTaskFunc: function(taskFunc) {
+		var _this = this;
+		var res = taskFunc();
+
+		if (res && res.then) {
+			res.then(done);
+		}
+		else {
+			done();
+		}
+
+		function done() {
+			if (_this.canRunNext()) {
+				_this.runNext();
+			}
+			else {
+				_this.isRunning = false;
+				_this.trigger('stop');
+			}
+		}
+	}
+
+});
+
+FC.TaskQueue = TaskQueue;
+
+;;
+
+var RenderQueue = TaskQueue.extend({
+
+	waitsByNamespace: null,
+	waitNamespace: null,
+	waitId: null,
+
+
+	constructor: function(waitsByNamespace) {
+		TaskQueue.call(this); // super-constructor
+
+		this.waitsByNamespace = waitsByNamespace || {};
+	},
+
+
+	queue: function(taskFunc, namespace, type) {
+		var task = {
+			func: taskFunc,
+			namespace: namespace,
+			type: type
+		};
+		var waitMs;
+
+		if (namespace) {
+			waitMs = this.waitsByNamespace[namespace];
+		}
+
+		if (this.waitNamespace) {
+			if (namespace === this.waitNamespace && waitMs != null) {
+				this.delayWait(waitMs);
+			}
+			else {
+				this.clearWait();
+				this.tryStart();
+			}
+		}
+
+		if (this.compoundTask(task)) { // appended to queue?
+
+			if (!this.waitNamespace && waitMs != null) {
+				this.startWait(namespace, waitMs);
+			}
+			else {
+				this.tryStart();
+			}
+		}
+	},
+
+
+	startWait: function(namespace, waitMs) {
+		this.waitNamespace = namespace;
+		this.spawnWait(waitMs);
+	},
+
+
+	delayWait: function(waitMs) {
+		clearTimeout(this.waitId);
+		this.spawnWait(waitMs);
+	},
+
+
+	spawnWait: function(waitMs) {
+		var _this = this;
+
+		this.waitId = setTimeout(function() {
+			_this.waitNamespace = null;
+			_this.tryStart();
+		}, wait

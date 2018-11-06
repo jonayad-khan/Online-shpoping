@@ -1,0 +1,34 @@
+Львівська',
+        'Шота Руставелі',
+        'Прорізна',
+        'І. Франкa',
+        'Б. Грінченка',
+        'Інститутська',
+        'Пирогова',
+        'М. Коцюбинського',
+        'Володимирська'
+    );
+
+    protected static $addressFormats = array(
+        "{{postcode}}, {{cityAndRegion}}, {{streetPrefix}} {{streetName}}, {{buildingNumber}}",
+    );
+
+    protected static $streetAddressFormats = array(
+        "{{streetPrefix}} {{streetName}}, {{buildingNumber}}"
+    );
+
+    public static function citySuffix()
+    {
+        // We don't use city suffix
+        return '';
+    }
+
+    public static function streetSuffix()
+    {
+        // We don't use street suffix
+        return '';
+    }
+
+    public function streetName()
+    {
+        re

@@ -1,0 +1,13 @@
+lass()), false),
+            array('isInstanceOf', array(new stdClass(), 'stdClass'), true),
+            array('isInstanceOf', array(new Exception(), 'stdClass'), false),
+            array('isInstanceOf', array(123, 'stdClass'), false),
+            array('isInstanceOf', array(array(), 'stdClass'), false),
+            array('notInstanceOf', array(new stdClass(), 'stdClass'), false),
+            array('notInstanceOf', array(new Exception(), 'stdClass'), true),
+            array('notInstanceOf', array(123, 'stdClass'), true),
+            array('notInstanceOf', array(array(), 'stdClass'), true),
+            array('true', array(true), true),
+            array('true', array(false), false),
+            array('true', array(1), false),
+           

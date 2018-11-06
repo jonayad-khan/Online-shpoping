@@ -1,0 +1,38 @@
+ull;
+        }
+
+        if (filter_var($id, FILTER_VALIDATE_INT) !== false) {
+            $id = (int) $id;
+        }
+
+        return $id;
+    }
+
+    /**
+     * Get the extra conditions for a unique rule.
+     *
+     * @param  array  $parameters
+     * @return array
+     */
+    protected function getUniqueExtra($parameters)
+    {
+        if (isset($parameters[4])) {
+            return $this->getExtraConditions(array_slice($parameters, 4));
+        }
+
+        return [];
+    }
+
+    /**
+     * Parse the connection / table for the unique / exists rules.
+     *
+     * @param  string  $table
+     * @return array
+     */
+    protected function parseTable($table)
+    {
+        return Str::contains($table, '.') ? explode('.', $table, 2) : [null, $table];
+    }
+
+    /**
+     * Get the column name for an exists / uniq

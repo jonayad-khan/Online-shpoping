@@ -1,0 +1,43 @@
+to whatever it should be, but will not change the
+     * currentBaseFont.
+     */
+    private function setCurrentFont()
+    {
+        //   if (strlen($this->currentBaseFont) == 0){
+        //     // then assume an initial font
+        //     $this->selectFont($this->defaultFont);
+        //   }
+        //   $cf = substr($this->currentBaseFont,strrpos($this->currentBaseFont,'/')+1);
+        //   if (strlen($this->currentTextState)
+        //     && isset($this->fontFamilies[$cf])
+        //       && isset($this->fontFamilies[$cf][$this->currentTextState])){
+        //     // then we are in some state or another
+        //     // and this font has a family, and the current setting exists within it
+        //     // select the font, then return it
+        //     $nf = substr($this->currentBaseFont,0,strrpos($this->currentBaseFont,'/')+1).$this->fontFamilies[$cf][$this->currentTextState];
+        //     $this->selectFont($nf,'',0);
+        //     $this->currentFont = $nf;
+        //     $this->currentFontNum = $this->fonts[$nf]['fontNum'];
+        //   } else {
+        //     // the this font must not have the right family member for the current state
+        //     // simply assume the base font
+        $this->currentFont = $this->currentBaseFont;
+        $this->currentFontNum = $this->fonts[$this->currentFont]['fontNum'];
+        //  }
+    }
+
+    /**
+     * function for the user to find out what the ID is of the first page that was created during
+     * startup - useful if they wish to add something to it later.
+     */
+    function getFirstPageId()
+    {
+        return $this->firstPageId;
+    }
+
+    /**
+     * add content to the currently active object
+     */
+    private function addContent($content)
+    {
+        $this->objects[

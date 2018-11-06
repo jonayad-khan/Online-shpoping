@@ -1,0 +1,236 @@
+ssertThatAttributeEquals()
+    {
+        $this->assertThat(
+            new \ClassWithNonPublicAttributes,
+            $this->attribute(
+                $this->equalTo('foo'),
+                'publicAttribute'
+            )
+        );
+    }
+
+    public function testAssertThatAttributeEquals2()
+    {
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertThat(
+            new \ClassWithNonPublicAttributes,
+            $this->attribute(
+                $this->equalTo('bar'),
+                'publicAttribute'
+            )
+        );
+    }
+
+    public function testAssertThatAttributeEqualTo()
+    {
+        $this->assertThat(
+            new \ClassWithNonPublicAttributes,
+            $this->attributeEqualTo('publicAttribute', 'foo')
+        );
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testAssertThatAnything()
+    {
+        $this->assertThat('anything', $this->anything());
+    }
+
+    public function testAssertThatIsTrue()
+    {
+        $this->assertThat(true, $this->isTrue());
+    }
+
+    public function testAssertThatIsFalse()
+    {
+        $this->assertThat(false, $this->isFalse());
+    }
+
+    public function testAssertThatIsJson()
+    {
+        $this->assertThat('{}', $this->isJson());
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testAssertThatAnythingAndAnything()
+    {
+        $this->assertThat(
+            'anything',
+            $this->logicalAnd(
+                $this->anything(),
+                $this->anything()
+            )
+        );
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testAssertThatAnythingOrAnything()
+    {
+        $this->assertThat(
+            'anything',
+            $this->logicalOr(
+                $this->anything(),
+                $this->anything()
+            )
+        );
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testAssertThatAnythingXorNotAnything()
+    {
+        $this->assertThat(
+            'anything',
+            $this->logicalXor(
+                $this->anything(),
+                $this->logicalNot($this->anything())
+            )
+        );
+    }
+
+    public function testAssertThatContains()
+    {
+        $this->assertThat(['foo'], $this->contains('foo'));
+    }
+
+    public function testAssertThatStringContains()
+    {
+        $this->assertThat('barfoobar', $this->stringContains('foo'));
+    }
+
+    public function testAssertThatContainsOnly()
+    {
+        $this->assertThat(['foo'], $this->containsOnly('string'));
+    }
+
+    public function testAssertThatContainsOnlyInstancesOf()
+    {
+        $this->assertThat([new \Book], $this->containsOnlyInstancesOf(\Book::class));
+    }
+
+    public function testAssertThatArrayHasKey()
+    {
+        $this->assertThat(['foo' => 'bar'], $this->arrayHasKey('foo'));
+    }
+
+    public function testAssertThatClassHasAttribute()
+    {
+        $this->assertThat(
+            new \ClassWithNonPublicAttributes,
+            $this->classHasAttribute('publicAttribute')
+        );
+    }
+
+    public function testAssertThatClassHasStaticAttribute()
+    {
+        $this->assertThat(
+            new \ClassWithNonPublicAttributes,
+            $this->classHasStaticAttribute('publicStaticAttribute')
+        );
+    }
+
+    public function testAssertThatObjectHasAttribute()
+    {
+        $this->assertThat(
+            new \ClassWithNonPublicAttributes,
+            $this->objectHasAttribute('publicAttribute')
+        );
+    }
+
+    public function testAssertThatEqualTo()
+    {
+        $this->assertThat('foo', $this->equalTo('foo'));
+    }
+
+    public function testAssertThatIdenticalTo()
+    {
+        $value      = new \stdClass;
+        $constraint = $this->identicalTo($value);
+
+        $this->assertThat($value, $constraint);
+    }
+
+    public function testAssertThatIsInstanceOf()
+    {
+        $this->assertThat(new \stdClass, $this->isInstanceOf('StdClass'));
+    }
+
+    public function testAssertThatIsType()
+    {
+        $this->assertThat('string', $this->isType('string'));
+    }
+
+    public function testAssertThatIsEmpty()
+    {
+        $this->assertThat([], $this->isEmpty());
+    }
+
+    public function testAssertThatFileExists()
+    {
+        $this->assertThat(__FILE__, $this->fileExists());
+    }
+
+    public function testAssertThatGreaterThan()
+    {
+        $this->assertThat(2, $this->greaterThan(1));
+    }
+
+    public function testAssertThatGreaterThanOrEqual()
+    {
+        $this->assertThat(2, $this->greaterThanOrEqual(1));
+    }
+
+    public function testAssertThatLessThan()
+    {
+        $this->assertThat(1, $this->lessThan(2));
+    }
+
+    public function testAssertThatLessThanOrEqual()
+    {
+        $this->assertThat(1, $this->lessThanOrEqual(2));
+    }
+
+    public function testAssertThatMatchesRegularExpression()
+    {
+        $this->assertThat('foobar', $this->matchesRegularExpression('/foo/'));
+    }
+
+    public function testAssertThatCallback()
+    {
+        $this->assertThat(
+            null,
+            $this->callback(function ($other) {
+                return true;
+            })
+        );
+    }
+
+    public function testAssertThatCountOf()
+    {
+        $this->assertThat([1], $this->countOf(1));
+    }
+
+    public function testAssertFileEquals()
+    {
+        $this->assertFileEquals(
+            $this->filesDirectory . 'foo.xml',
+            $this->filesDirectory . 'foo.xml'
+        );
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertFileEquals(
+            $this->filesDirectory . 'foo.xml',
+            $this->filesDirectory . 'bar.xml'
+        );
+    }
+
+    public function testAssertFileNotEquals()
+  
